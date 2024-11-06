@@ -1,5 +1,5 @@
 import { log } from "./utils/logger";
-import { LOG } from "./decorators";
+import { LOG } from "./decorators/log";
 
 const GlobalContent: Record<string, any> = {
     // MUST BE THE FIRST
