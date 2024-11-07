@@ -1,6 +1,10 @@
 import { PatchFlags } from "$/consts";
 import { assert } from "$/utils";
 
+export interface Decorator<T> {
+    readonly target: T;
+}
+
 export abstract class Decorator<T> {
     constructor(public readonly target: T) {
         assert.ok(target, `'target' is required.`);
@@ -9,7 +13,7 @@ export abstract class Decorator<T> {
         this[PatchFlags.IsDecorator] = true;
     }
 
-    static Create<D extends Decorator<T>, T>(decorator: D): T {
+    static Create<D extends Decorator<T>, T = D extends Decorator<infer T> ? T : never>(decorator: D): T & Decorator<T> {
         return new Proxy<D>(decorator, {
             get(target: D, prop: string | symbol, receiver: any) {
                 if (prop in target) {
@@ -24,6 +28,16 @@ export abstract class Decorator<T> {
                     return target.target[prop];
                 }
             }
-        }) as unknown as T;
+        }) as any as T & Decorator<T>;
     }
+}
+
+export function decorate<T>(obj: T) {
+    function by<D extends new (target: T) => Decorator<T>>(decoratorClass: D) {
+        return Decorator.Create(new decoratorClass(obj));
+    }
+
+    return {
+        by,
+    };
 }

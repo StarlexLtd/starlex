@@ -1,1 +1,1 @@
-export * from "./pattern";
+export { };
