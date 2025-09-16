@@ -7,13 +7,13 @@ export interface Decorator<T> {
 
 export abstract class Decorator<T> {
     constructor(public readonly target: T) {
-        assert.ok(target, `'target' is required.`);
+        assert(target, `'target' is required.`);
 
         //@ts-ignore
         this[PatchFlags.IsDecorator] = true;
     }
 
-    static Create<D extends Decorator<T>, T = D extends Decorator<infer T> ? T : never>(decorator: D): T & Decorator<T> {
+    static Create<D extends Decorator<T>, T = D extends Decorator<infer K> ? K : never>(decorator: D): T & Decorator<T> {
         return new Proxy<D>(decorator, {
             get(target: D, prop: string | symbol, receiver: any) {
                 if (prop in target) {
@@ -27,7 +27,20 @@ export abstract class Decorator<T> {
                     //@ts-ignore
                     return target.target[prop];
                 }
-            }
+            },
+            set(target: D, prop: string | symbol, newValue: any, receiver: any) {
+                if (prop in target) {
+                    return Reflect.set(target, prop, newValue, receiver);
+                } else if (prop === PatchFlags.IsProxy) {
+                    // PatchFlags 不能修改
+                    return false;
+                } else{
+                    // 装饰器上不存在的属性，直接写入被装饰的对象。
+                    //@ts-ignore
+                    target.target[prop] = newValue;
+                    return true;
+                }
+            },
         }) as any as T & Decorator<T>;
     }
 }
