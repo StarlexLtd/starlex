@@ -1,11 +1,11 @@
 {
     "private": true,
     "version": "0.0.1",
-    "name": "starlex/core",
+    "name": "@starlex/core",
     "type": "module",
     "module": "dist/index.mjs",
     "scripts": {
-        "build": "vite build",
+        "build": "tsup",
         "test": "vitest"
     },
     "dependencies": {

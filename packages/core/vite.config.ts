@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { resolve } from "node:path";
 import { defineConfig } from "vitest/config";
+import dts from "vite-plugin-dts";
 
 export default defineConfig({
     resolve: {
@@ -12,6 +13,7 @@ export default defineConfig({
         ],
     },
     build: {
+        emptyOutDir: true,
         lib: {
             entry: "src/index.ts",
             formats: ["es"],
@@ -21,7 +23,11 @@ export default defineConfig({
             external: ["moment"],
         },
     },
-    plugins: [],
+    plugins: [
+        dts({
+            include: ["src", "types"],
+        }),
+    ],
     test: {
         include: ["__test__/**/*.{test,spec}.{js,ts}"],
     },
