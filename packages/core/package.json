@@ -1,7 +1,7 @@
 {
-    "private": true,
     "version": "0.0.1",
     "name": "@starlex/core",
+    "license": "MIT",
     "type": "module",
     "module": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -11,8 +11,11 @@
         "test": "vitest"
     },
     "dependencies": {
-
     },
     "devDependencies": {
+        "tsup": "catalog:",
+        "typescript": "catalog:",
+        "vite": "catalog:",
+        "vitest": "catalog:"
     }
 }
