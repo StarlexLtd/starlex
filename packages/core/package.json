@@ -1,6 +1,6 @@
 {
     "version": "0.0.1",
-    "name": "@starlex/core",
+    "name": "starlex",
     "license": "MIT",
     "type": "module",
     "module": "dist/index.js",
