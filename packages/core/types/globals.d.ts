@@ -1,3 +1,5 @@
+import type { EventType, Handler } from "mitt";
+
 declare global {
     type LogFunction = (...data: any[]) => void;
 
@@ -15,6 +17,7 @@ declare global {
         RELEASE: boolean;
 
         log: LogFunction & ILogger;
+        events: IEventBus;
     }
 
     var TRACE: boolean;
@@ -23,6 +26,47 @@ declare global {
 
     const log: LogFunction & ILogger;
     const LOG: ClassMethodDecoratorFunction<any>;
+    const events: IEventBus;
+
+    // #region Events
+
+    declare type BaseEvents = Record<EventType, unknown>;
+    declare type GlobalEvents = {
+        error: { source: string; error: any; },
+    };
+
+    /**
+     * Event Bus
+     */
+    declare interface IEventBus<Events extends BaseEvents = GlobalEvents> {
+        /**
+         * Type cast, for a new sub set of events.
+         */
+        set<NewEventSet extends BaseEvents>(): IEventBus<NewEventSet>;
+
+        /**
+         * Attach handler to event.
+         * @param name Event name
+         * @param handler Event handler
+         */
+        on<Key extends keyof Events>(name: Key, handler: Handler<Events[Key]>): IEventBus<Events>;
+
+        /**
+         * Detach handler from event.
+         * @param name Event name
+         * @param handler Event handler
+         */
+        off<Key extends keyof Events>(name: Key, handler: Handler<Events[Key]>): IEventBus<Events>;
+
+        /**
+         * Emit the event.
+         * @param name Event name
+         * @param data Attached data
+         */
+        emit<Key extends keyof Events>(name: Key, data?: Events[Key]): IEventBus<Events>;
+    }
+
+    // #endregion
 }
 
 declare var window: Window & typeof globalThis;

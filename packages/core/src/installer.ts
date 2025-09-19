@@ -1,10 +1,12 @@
 import { log } from "./utils/logger";
+import { events } from "./utils/events";
 import { LOG } from "./decorators/log";
 
 const GlobalContent: Record<string, any> = {
     // MUST BE THE FIRST
     log,
     LOG,
+    events,
 };
 
 function _install(globalObject: any) {

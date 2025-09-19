@@ -12,6 +12,7 @@
         "test": "vitest"
     },
     "dependencies": {
+        "mitt": "catalog:"
     },
     "devDependencies": {
         "tsup": "catalog:",
