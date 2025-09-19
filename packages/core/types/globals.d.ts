@@ -1,7 +1,7 @@
 declare global {
-    declare type LogFunction = (...data: any[]) => void;
+    type LogFunction = (...data: any[]) => void;
 
-    declare interface ILogger {
+    interface ILogger {
         error: LogFunction;
         warn: LogFunction;
         info: LogFunction;
@@ -21,8 +21,8 @@ declare global {
     var DEBUG: boolean;
     var RELEASE: boolean;
 
-    declare const log: LogFunction & ILogger;
-    declare const LOG: ClassMethodDecoratorFunction;
+    const log: LogFunction & ILogger;
+    const LOG: ClassMethodDecoratorFunction<any>;
 }
 
 declare var window: Window & typeof globalThis;

@@ -1,7 +1,7 @@
 export function LOG<Fn extends (...args: any[]) => any>(
     target: Fn,
     context: ClassMethodDecoratorContext<ThisParameterType<Fn>, Fn>
-) {
+): ClassMethodDecoratorFunction<Fn> {
     function replacement(this: ThisParameterType<Fn>, ...args: Parameters<Fn>[]): ReturnType<Fn> {
         const fullname = `${(this as any).constructor.name}.${String(context.name)}()`;
         const startTime = new Date();

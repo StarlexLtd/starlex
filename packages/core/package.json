@@ -8,7 +8,7 @@
     "scripts": {
         "dev": "tsup --watch",
         "build": "tsup",
-        "postbuild": "mv dist/index.d.ts types/",
+        "postbuild": "mv dist/index.d.ts types/lib.d.ts",
         "test": "vitest"
     },
     "dependencies": {
