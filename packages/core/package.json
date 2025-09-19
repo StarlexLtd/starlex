@@ -1,13 +1,14 @@
 {
+    "name": "@cyysummer/core",
     "version": "0.0.1",
-    "name": "starlex",
     "license": "MIT",
     "type": "module",
     "module": "dist/index.js",
-    "types": "dist/index.d.ts",
+    "types": "./types",
     "scripts": {
         "dev": "tsup --watch",
         "build": "tsup",
+        "postbuild": "mv dist/index.d.ts types/",
         "test": "vitest"
     },
     "dependencies": {
@@ -17,5 +18,8 @@
         "typescript": "catalog:",
         "vite": "catalog:",
         "vitest": "catalog:"
+    },
+    "publishConfig": {
+        "access": "public"
     }
 }

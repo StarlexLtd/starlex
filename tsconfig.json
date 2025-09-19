@@ -19,7 +19,7 @@
         "jsx": "preserve",
         "lib": ["esnext", "dom", "decorators"],
         "paths": {
-            "starlex/core": ["packages/core/src"]
+            "cyysummer/core": ["packages/core/src"]
         }
     },
     "include": [
