@@ -1,6 +1,6 @@
 {
     "name": "@cyysummer/core",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "license": "MIT",
     "type": "module",
     "module": "./dist/index.js",
@@ -17,7 +17,8 @@
         "postbuild": "mv dist/index.d.ts types/lib.d.ts",
         "test": "vitest"
     },
-    "dependencies": {},
+    "dependencies": {
+    },
     "peerDependencies": {
         "mitt": "catalog:"
     },
