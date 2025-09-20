@@ -11,3 +11,5 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 site.*
 .vscode/bookmarks.json
+
+packages/**/types/lib.d.ts

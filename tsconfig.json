@@ -20,21 +20,18 @@
         "jsx": "preserve",
         "lib": ["esnext", "dom", "decorators"],
         "paths": {
-            "cyysummer/core": ["packages/core/src"]
+            "@cyysummer/core": ["packages/core/src"]
         },
         "typeRoots": [
             "node_modules/@types",
-            "@cyysummer/core/types",
             "./packages/**/types",
         ],
     },
     "include": [
         "./packages/global.d.ts",
-        "./packages/**/*.d.ts",
-        "./packages/**/*.js",
-        "./packages/**/*.ts",
     ],
     "exclude": [
-        "dist"
-    ]
+        "./dist",
+        "./packages/**/dist",
+    ],
 }

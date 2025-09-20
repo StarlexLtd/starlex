@@ -1,14 +1,14 @@
 {
-    "private": true,
-    "packageManager": "pnpm@10.16.0",
+    "name": "starlex",
     "version": "0.0.1",
+    "license": "MIT",
     "type": "module",
     "scripts": {
         "dev": "node scripts/dev.js",
-        "build": "pnpm --filter starlex/core build",
+        "build": "pnpm --filter @cyysummer/core build",
         "format": "prettier --write --cache --parser typescript \"packages/**/*.ts?(x)\"",
         "format-check": "prettier --check --cache --parser typescript \"packages/**/*.ts?(x)\"",
-        "test": "pnpm --filter starlex/core test",
+        "test": "pnpm --filter @cyysummer/core test",
         "release": "node scripts/release.js"
     },
     "types": "test-dts/index.d.ts",
@@ -31,5 +31,6 @@
     },
     "engines": {
         "node": ">=20.0.0"
-    }
+    },
+    "packageManager": "pnpm@10.17.0"
 }
