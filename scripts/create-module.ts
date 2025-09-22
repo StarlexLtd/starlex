@@ -33,6 +33,7 @@ const package_json = `{
         "test": "vitest"
     },
     "dependencies": {
+        "@cyysummer/core": "workspace:^"
     },
     "peerDependencies": {
     },
@@ -73,6 +74,13 @@ export default defineConfig({
 });
 `;
 
+const index_d_ts = `/// <reference path="./lib.d.ts" />
+
+export * from "./lib";
+
+export { };
+`;
+
 // #endregion
 
 const params: (keyof IArgs)[] = ["name"];
@@ -82,6 +90,8 @@ const templates: Record<string, string> = {
     "package.json": package_json,
     "tsconfig.json": tsconfig_json,
     "tsup.config.ts": tsup_config_ts,
+    "src/index.ts": "",
+    "types/index.d.ts": index_d_ts,
 };
 
 function extractArgs() {
@@ -120,6 +130,8 @@ function main() {
             const template = templates[filename];
             const code = params.reduce((result, arg) => result.replaceAll(`<%${arg}%>`, args[arg]), template);
             const fullName = path.join(targetPath, filename);
+            const fullDir = path.dirname(fullName);
+            fs.mkdirSync(fullDir, { recursive: true });
             console.log("Writing ", fullName);
             fs.writeFileSync(fullName, code, { encoding: "utf-8" });
         }
