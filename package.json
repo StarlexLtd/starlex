@@ -4,6 +4,7 @@
     "license": "MIT",
     "type": "module",
     "scripts": {
+        "create:module": "pnpm tsx scripts/create-module.ts",
         "dev": "node scripts/dev.js",
         "build": "pnpm --filter @cyysummer/core build",
         "format": "prettier --write --cache --parser typescript \"packages/**/*.ts?(x)\"",
@@ -23,6 +24,7 @@
         "prettier": "catalog:",
         "prettier-plugin-multiline-arrays": "catalog:",
         "tsup": "catalog:",
+        "tsx": "catalog:",
         "typescript": "catalog:",
         "typescript-eslint": "catalog:",
         "vite": "catalog:",
