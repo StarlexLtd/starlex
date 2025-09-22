@@ -1,0 +1,36 @@
+{
+    "name": "@cyysummer/element-plus",
+    "version": "0.0.1",
+    "license": "MIT",
+    "type": "module",
+    "module": "./dist/index.js",
+    "types": "./types",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "types": "./types/index.d.ts"
+        }
+    },
+    "scripts": {
+        "dev": "tsup --watch",
+        "build": "rm -rf ./dist && tsup",
+        "postbuild": "mv dist/index.d.ts types/lib.d.ts",
+        "test": "vitest"
+    },
+    "dependencies": {
+        "@cyysummer/core": "workspace:^"
+    },
+    "peerDependencies": {
+        "element-plus": "catalog:"
+    },
+    "devDependencies": {
+        "element-plus": "catalog:",
+        "tsup": "catalog:",
+        "typescript": "catalog:",
+        "vite": "catalog:",
+        "vitest": "catalog:"
+    },
+    "publishConfig": {
+        "access": "public"
+    }
+}

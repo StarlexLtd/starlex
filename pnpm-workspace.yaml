@@ -11,6 +11,7 @@ catalog:
   '@typescript-eslint/parser': ^8.44.0
   arctic: ^3.7.0
   dotenv: ^17.2.2
+  element-plus: ^2.11.3
   eslint: ^9.35.0
   eslint-config-prettier: ^10.1.8
   globals: ^16.3.0
