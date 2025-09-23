@@ -62,6 +62,7 @@ const tsconfig_json = `{
     "include": [
         "./src/**/*",
         "./types/**/*",
+        "./__test__/**/*",
     ],
 }
 `;
