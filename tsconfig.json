@@ -22,10 +22,6 @@
         "paths": {
             "@cyysummer/core": ["packages/core/src"]
         },
-        "typeRoots": [
-            "node_modules/@types",
-            "./packages/**/types",
-        ],
     },
     "include": [
         "./packages/global.d.ts",
