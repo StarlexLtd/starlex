@@ -1,4 +1,4 @@
-import type { EventType, Handler } from "mitt";
+import type { Emitter, EventType, Handler } from "mitt";
 
 declare global {
     type LogFunction = (...data: any[]) => void;
@@ -17,7 +17,6 @@ declare global {
         RELEASE: boolean;
 
         log: LogFunction & ILogger;
-        events: IEventBus;
     }
 
     var TRACE: boolean;
@@ -26,19 +25,18 @@ declare global {
 
     const log: LogFunction & ILogger;
     const LOG: ClassMethodDecoratorFunction<any>;
-    const events: IEventBus;
 
     // #region Events
 
-    declare type BaseEvents = Record<EventType, unknown>;
-    declare type GlobalEvents = {
+    type BaseEvents = Record<EventType, unknown>;
+    type GlobalEvents = {
         error: { source: string; error: any; },
     };
 
     /**
      * Event Bus
      */
-    declare interface IEventBus<Events extends BaseEvents = GlobalEvents> {
+    interface IEventBus<Events extends BaseEvents> extends Emitter<Events> {
         /**
          * Type cast, for a new sub set of events.
          */
