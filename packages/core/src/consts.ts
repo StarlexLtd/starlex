@@ -1,5 +1,7 @@
-export const enum PatchFlags {
-    IsHook = "__is_hook__",
-    IsProxy = "__is_proxy__",
-    IsDecorator = "__is_decorator__",
-}
+// #region PatchFlags
+
+export const IS_DECORATOR = Symbol("IsDecorator");
+export const IS_HOOK = Symbol("IsHook");
+export const IS_PROXY = Symbol("IsProxy");
+
+// #endregion

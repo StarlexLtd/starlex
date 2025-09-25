@@ -1,3 +1,4 @@
+export * from "./consts";
 export * from "./class-decorators";
 export * from "./lang";
 export * from "./patterns";

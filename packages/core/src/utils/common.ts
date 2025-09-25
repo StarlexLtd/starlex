@@ -1,4 +1,4 @@
-import { PatchFlags } from "$/consts";
+import { IS_DECORATOR, IS_HOOK, IS_PROXY } from "$/consts";
 import { Decorator } from "$/patterns";
 
 /**
@@ -7,17 +7,17 @@ import { Decorator } from "$/patterns";
  * @param message If condition test fails, throw this message as Error.
  */
 export function assert(condition: any, message?: string) {
-    if (!!!condition) throw new Error(message)
+    if (!!!condition) throw new Error(message);
 }
 
 export function isDecorator<T>(d: any): d is Decorator<T> {
-    return d[PatchFlags.IsDecorator] || d instanceof Decorator;
+    return d[IS_DECORATOR] || d instanceof Decorator;
 }
 
 export function isHook(o: any): boolean {
-    return o[PatchFlags.IsHook];
+    return o[IS_HOOK];
 }
 
 export function isProxy(p: any): boolean {
-    return p[PatchFlags.IsProxy];
+    return p[IS_PROXY];
 }
