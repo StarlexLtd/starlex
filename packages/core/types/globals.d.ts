@@ -29,40 +29,43 @@ declare global {
 
     // #region Events
 
-    type BaseEvents = Record<EventType, unknown>;
     type GlobalEvents = {
+        ready: void;
         error: { source: string; error: any; },
     };
 
     /**
      * Event Bus
      */
-    interface IEventBus<Events extends BaseEvents> extends Emitter<Events> {
+    interface IEventBus<Events extends Record<EventType, unknown>> extends Emitter<Events> {
         /**
          * Type cast, for a new sub set of events.
          */
-        set<NewEventSet extends BaseEvents>(): IEventBus<NewEventSet>;
+        set<NewEventSet extends Record<EventType, unknown>>(): IEventBus<NewEventSet>;
 
         /**
          * Attach handler to event.
-         * @param name Event name
+         * @param type Event type
          * @param handler Event handler
          */
-        on<Key extends keyof Events>(name: Key, handler: Handler<Events[Key]>): IEventBus<Events>;
+        on<Key extends keyof Events>(type: Key, handler: Handler<Events[Key]>): IEventBus<Events>;
+        on(type: "*", handler: WildcardHandler<Events>): void;
 
         /**
          * Detach handler from event.
-         * @param name Event name
+         * @param type Event type
          * @param handler Event handler
          */
-        off<Key extends keyof Events>(name: Key, handler: Handler<Events[Key]>): IEventBus<Events>;
+        off<Key extends keyof Events>(type: Key, handler: Handler<Events[Key]>): IEventBus<Events>;
+        off(type: "*", handler: WildcardHandler<Events>): void;
 
         /**
          * Emit the event.
-         * @param name Event name
+         * @param type Event type
          * @param data Attached data
          */
-        emit<Key extends keyof Events>(name: Key, data?: Events[Key]): IEventBus<Events>;
+        emit<Key extends keyof Events>(type: Key, data?: Events[Key]): IEventBus<Events>;
+        emit<Key extends keyof Events>(type: undefined extends Events[Key] ? Key : never): void;
     }
 
     // #endregion

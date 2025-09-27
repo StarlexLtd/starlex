@@ -1,4 +1,4 @@
-import type { Handler } from "mitt";
+import type { EventType, Handler } from "mitt";
 
 import mitt from "mitt";
 
@@ -6,12 +6,12 @@ export type GlobalEvents = {
     error: { source: string; error: any; },
 };
 
-class EventBus<Events extends BaseEvents> implements IEventBus<Events> {
+class EventBus<Events extends Record<EventType, unknown>> implements IEventBus<Events> {
     private readonly _emitter = mitt<Events>();
 
     get all() { return this._emitter.all; }
 
-    set<NewEventSet extends BaseEvents>(): IEventBus<NewEventSet> {
+    set<NewEventSet extends Record<EventType, unknown>>(): IEventBus<NewEventSet> {
         return this as unknown as IEventBus<NewEventSet>;
     }
 
