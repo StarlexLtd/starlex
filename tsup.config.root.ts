@@ -5,7 +5,7 @@ export default defineConfig({
     outDir: "dist",
     format: ["esm"],
     sourcemap: true,
-    clean: true, // clean `outDir` before build.
+    // clean: true, // clean `outDir` before build.
     tsconfig: "tsconfig.json", // spec tsconfig
     dts: {
         entry: ["src/index.ts"],
