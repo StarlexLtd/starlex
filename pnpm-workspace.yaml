@@ -10,6 +10,7 @@ catalog:
   '@typescript-eslint/eslint-plugin': ^8.44.0
   '@typescript-eslint/parser': ^8.44.0
   arctic: ^3.7.0
+  chalk: ^5.6.2
   dotenv: ^17.2.2
   element-plus: ^2.11.3
   eslint: ^9.35.0

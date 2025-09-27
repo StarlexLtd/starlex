@@ -1,6 +1,6 @@
 {
     "name": "@cyysummer/core",
-    "version": "0.0.7",
+    "version": "0.0.8",
     "license": "MIT",
     "type": "module",
     "module": "./dist/index.js",
@@ -21,6 +21,7 @@
         "test": "vitest"
     },
     "dependencies": {
+        "chalk": "catalog:"
     },
     "peerDependencies": {
         "mitt": "catalog:"
