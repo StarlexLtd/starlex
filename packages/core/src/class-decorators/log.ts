@@ -1,8 +1,8 @@
-export function LOG<Fn extends (...args: any[]) => any>(
-    target: Fn,
-    context: ClassMethodDecoratorContext<ThisParameterType<Fn>, Fn>
-): ClassMethodDecoratorFunction<Fn> {
-    function replacement(this: ThisParameterType<Fn>, ...args: Parameters<Fn>[]): ReturnType<Fn> {
+export function LOG<This, Args extends any[], Return>(
+    target: (this: This, ...args: Args) => Return,
+    context: ClassMethodDecoratorContext<This, (this: This, ...args: Args) => Return>
+): (this: This, ...args: Args) => Return {
+    function replacement(this: This, ...args: Args): Return {
         const fullname = `${(this as any).constructor.name}.${String(context.name)}()`;
         const startTime = new Date();
         const logTime = (err?: any) => {
@@ -25,7 +25,7 @@ export function LOG<Fn extends (...args: any[]) => any>(
                     .catch(err => {
                         logTime(err);
                         throw err;
-                    }) as ReturnType<Fn>;
+                    }) as Return;
             } else {
                 logTime();
                 return result;

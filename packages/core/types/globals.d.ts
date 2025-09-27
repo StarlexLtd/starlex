@@ -24,7 +24,8 @@ declare global {
     var RELEASE: boolean;
 
     const log: LogFunction & ILogger;
-    const LOG: ClassMethodDecoratorFunction<any>;
+
+    const LOG: (this: any, ...args: any) => any;
 
     // #region Events
 

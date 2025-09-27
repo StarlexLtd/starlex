@@ -1,6 +1,6 @@
 declare global {
     export type Action = () => void;
-    export type Action<T> = (arg: T) => void;
+    export type Action1<T> = (arg: T) => void;
     export type Action2<T1, T2> = (arg1: T1, arg2: T2) => void;
     export type Action3<T1, T2, T3> = (arg1: T1, arg2: T2, arg3: T3) => void;
     export type Action4<T1, T2, T3, T4> = (arg1: T1, arg2: T2, arg3: T3, arg4: T4) => void;
@@ -39,8 +39,6 @@ declare global {
         : (arg1: T1, arg2: T2, arg3: T3) => R
         : (arg1: T1, arg2: T2, arg3: T3, arg4: T4) => R
         : (arg1: T1, arg2: T2, arg3: T3, arg4: T4, arg5: T5) => R;
-
-    type ClassMethodDecoratorFunction<Fn extends (...args: any[]) => any> = (this: ThisParameterType<Fn>, ...args: Parameters<Fn>[]) => ReturnType<Fn>;
 }
 
 export { };
