@@ -1,4 +1,4 @@
-export function LOG<This, Args extends any[], Return>(
+export function withTiming<This, Args extends any[], Return>(
     target: (this: This, ...args: Args) => Return,
     context: ClassMethodDecoratorContext<This, (this: This, ...args: Args) => Return>
 ): (this: This, ...args: Args) => Return {
@@ -8,12 +8,12 @@ export function LOG<This, Args extends any[], Return>(
         const logTime = (err?: any) => {
             const time = (new Date()).valueOf() - startTime.valueOf();
             if (err == null)
-                log.trace(`LOG: Exiting method '${fullname}'. Time cost: ${time}ms`);
+                log.trace(`Timing: Exiting method '${fullname}'. Time cost: ${time}ms`);
             else
-                log.error(`LOG: Error in method '${fullname}'. Time cost: ${time}ms. ${err}`);
+                log.error(`Timing: Error in method '${fullname}'. Time cost: ${time}ms. ${err}`);
         };
 
-        log.trace(`LOG: Entering method '${fullname}'. Arguments:`, args);
+        log.trace(`Timing: Entering method '${fullname}'. Arguments:`, args);
         try {
             const result = target.call(this, ...args);
             if (result instanceof Promise) {

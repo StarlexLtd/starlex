@@ -1,11 +1,8 @@
 import { log } from "./utils/logger";
 import { events } from "./utils/events";
-import { LOG } from "./class-decorators/log";
 
 const GlobalContent: Record<string, any> = {
-    // MUST BE THE FIRST
-    log,
-    LOG,
+    log,    // MUST BE THE FIRST
     events,
 };
 

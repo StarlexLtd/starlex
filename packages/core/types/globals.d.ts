@@ -25,7 +25,7 @@ declare global {
 
     const log: LogFunction & ILogger;
 
-    const LOG: (this: any, ...args: any) => any;
+    const withTiming: (this: any, ...args: any) => any;
 
     // #region Events
 
