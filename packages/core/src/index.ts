@@ -1,3 +1,6 @@
+import "./consts";
+import "./utils/logger";
+
 export * from "./consts";
 export * from "./class-decorators";
 export * from "./lang";

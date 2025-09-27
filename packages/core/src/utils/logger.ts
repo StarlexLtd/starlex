@@ -1,28 +1,25 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import chalk from "chalk";
+import { IS_BROWSER } from "../consts";
 
-function getStatus(key: "DEBUG" | "TRACE"): boolean {
-    let status = globalThis[key];
-    if (typeof window !== "undefined") {
-        status ||= window[key];
-    }
-    if (typeof process !== "undefined") {
-        status ||= process.env[key] == "1";
-    }
-
-    return status;
-}
+const getStatus = (key: "DEBUG" | "TRACE"): boolean =>
+    globalThis[key] == true ||
+    (typeof window !== "undefined" && window[key] == true) ||
+    (typeof process !== "undefined" && process.env[key] == "1");
 
 const __DEBUG = getStatus("DEBUG");
 const __TRACE = getStatus("TRACE");
 
-const error = console.error.bind(console);
-const warn = console.warn.bind(console);
-const info = console.info.bind(console);
-const debug = __DEBUG ? console.log.bind(console) : () => { };
-const trace = __TRACE ? console.debug.bind(console) : () => { };
+const chalkText = IS_BROWSER ? chalk.whiteBright : chalk.black;
 
-const _log = console.log.bind(console) as any;
+const error = console.error.bind(console, chalkText.bgRedBright(IS_BROWSER ? " ERROR " : "  ERROR  "));
+const warn = console.warn.bind(console, chalkText.bgYellow(" WARNING "));
+const info = console.info.bind(console, chalkText.bgCyan(IS_BROWSER ? " INFO " : "  INFO   "));
+const debug = __DEBUG ? console.log.bind(console, chalkText.bgBlueBright(IS_BROWSER ? " DEBUG " : "  DEBUG  ")) : () => { };
+const trace = __TRACE ? console.debug.bind(console, chalkText.bgGray(IS_BROWSER ? " TRACE " : "  TRACE  ")) : () => { };
+
+const _log = console.log.bind(console, chalkText.bgBlueBright(IS_BROWSER ? " LOG " : "   LOG   ")) as any;
 _log.error = error;
 _log.warn = warn;
 _log.info = info;
