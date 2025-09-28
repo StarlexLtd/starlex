@@ -1,5 +1,12 @@
+/**
+ * Common utils.
+ *
+ * !! Attention !!
+ * As few dependencies as possible!
+ *
+ */
+
 import { IS_DECORATOR, IS_HOOK, IS_PROXY } from "$/consts";
-import { Decorator } from "$/patterns";
 
 /**
  * Assert
@@ -10,8 +17,8 @@ export function assert(condition: any, message?: string) {
     if (!!!condition) throw new Error(message);
 }
 
-export function isDecorator<T>(d: any): d is Decorator<T> {
-    return d[IS_DECORATOR] || d instanceof Decorator;
+export function isDecorator(d: any): boolean {
+    return d[IS_DECORATOR];
 }
 
 export function isHook(o: any): boolean {
