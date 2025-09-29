@@ -36,13 +36,13 @@ export function installToGlobalObject(content: Record<string, any>) {
 }
 
 export function isDecorator(d: any): boolean {
-    return d[IS_DECORATOR];
+    return d[IS_DECORATOR] === true;
 }
 
 export function isHook(o: any): boolean {
-    return o[IS_HOOK];
+    return o[IS_HOOK] === true;
 }
 
 export function isProxy(p: any): boolean {
-    return p[IS_PROXY];
+    return p[IS_PROXY] === true;
 }
