@@ -21,10 +21,10 @@
         "test": "vitest"
     },
     "dependencies": {
-        "chalk": "catalog:"
     },
     "peerDependencies": {
-        "mitt": "catalog:"
+        "chalk": ">=5",
+        "mitt": ">=3"
     },
     "devDependencies": {
         "tsup": "catalog:",
