@@ -4,6 +4,7 @@ declare global {
     type LogFunction = (...data: any[]) => void;
 
     interface ILogger {
+        success: LogFunction;
         error: LogFunction;
         warn: LogFunction;
         info: LogFunction;
