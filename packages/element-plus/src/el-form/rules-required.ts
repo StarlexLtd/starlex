@@ -1,8 +1,10 @@
 import type { FormItemContext, FormItemRule } from "element-plus";
+import type { Ref } from "vue";
 
 import { ElForm } from "element-plus";
+import { ref, watch } from "vue";
 
-interface ElFormRequiredRuleOptions {
+export interface ElFormRequiredRuleOptions {
     /** Message template. Use '%s' as field name, it will be replaced. */
     template: string;
 
@@ -10,10 +12,19 @@ interface ElFormRequiredRuleOptions {
     trigger?: string;
 }
 
-export function createRequiredRules(form: typeof ElForm, options: ElFormRequiredRuleOptions): Record<string, FormItemRule[]> | undefined {
-    if (!form) return undefined;
+/**
+ * Scan ElForm items, and create required rules for every ElFormItem.
+ * The item must set `required` prop to `true`.
+ *
+ * @param form
+ * @param options
+ * @returns
+ */
+export function createRequiredRules(form: typeof ElForm, options: ElFormRequiredRuleOptions): Record<string, FormItemRule[]> {
+    if (!form || !options || !options.template)
+        throw new Error(`"form" and "options.template" are required.`);
 
-    const rules: Record<string, FormItemRule[]> = {};;
+    const rules: Record<string, FormItemRule[]> = {};
 
     (form.fields as FormItemContext[]).forEach((field) => {
         if (field.prop && typeof field.prop === "string" && field.required) {
@@ -23,6 +34,25 @@ export function createRequiredRules(form: typeof ElForm, options: ElFormRequired
                 trigger: options.trigger,
             }];
         }
-    })
+    });
     return rules;
+}
+
+/**
+ * Create rules Ref<> for ElForm.
+ * Recommendation: turn off `validate-on-rule-change` for ElForm.
+ *
+ * @param formRef
+ * @param options
+ * @returns Ref<{}> which contains rules. You can bind it to ElForm.
+ */
+export function useRequiredRules(formRef: Ref<typeof ElForm>, options: ElFormRequiredRuleOptions): Ref<Record<string, FormItemRule[]>> {
+    const rulesRef = ref<Record<string, FormItemRule[]>>({});
+
+    watch(formRef, form => {
+        if (!form) return;
+        rulesRef.value = createRequiredRules(form, options);
+    });
+
+    return rulesRef;
 }
