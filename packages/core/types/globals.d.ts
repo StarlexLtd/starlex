@@ -1,4 +1,4 @@
-import type { Emitter, EventType, Handler } from "mitt";
+import type { Emitter, EventType, Handler, WildcardHandler } from "mitt";
 
 declare global {
     type LogFunction = (...data: any[]) => void;
@@ -25,7 +25,7 @@ declare global {
 
     const log: LogFunction & ILogger;
 
-    const withTiming: (this: any, ...args: any) => any;
+    // const withTiming: (this: any, ...args: any) => any;
 
     // #region Events
 
@@ -49,7 +49,7 @@ declare global {
          * @param handler Event handler
          */
         on<Key extends keyof Events>(type: Key, handler: Handler<Events[Key]>): IEventBus<Events>;
-        on(type: "*", handler: WildcardHandler<Events>): void;
+        on(type: "*", handler: WildcardHandler<Events>): IEventBus<Events>;
 
         /**
          * Detach handler from event.
@@ -57,7 +57,7 @@ declare global {
          * @param handler Event handler
          */
         off<Key extends keyof Events>(type: Key, handler: Handler<Events[Key]>): IEventBus<Events>;
-        off(type: "*", handler: WildcardHandler<Events>): void;
+        off(type: "*", handler: WildcardHandler<Events>): IEventBus<Events>;
 
         /**
          * Emit the event.
@@ -65,7 +65,7 @@ declare global {
          * @param data Attached data
          */
         emit<Key extends keyof Events>(type: Key, data?: Events[Key]): IEventBus<Events>;
-        emit<Key extends keyof Events>(type: undefined extends Events[Key] ? Key : never): void;
+        emit<Key extends keyof Events>(type: undefined extends Events[Key] ? Key : never): IEventBus<Events>;
     }
 
     // #endregion

@@ -1,4 +1,4 @@
-import type { EventType, Handler } from "mitt";
+import type { EventType, Handler, WildcardHandler } from "mitt";
 
 import mitt from "mitt";
 
@@ -15,13 +15,17 @@ class EventBus<Events extends Record<EventType, unknown>> implements IEventBus<E
         return this as unknown as IEventBus<NewEventSet>;
     }
 
-    on<Key extends keyof Events>(name: Key, handler: Handler<Events[Key]>): IEventBus<Events> {
-        this._emitter.on(name, handler);
+    on(type: "*", handler: WildcardHandler<Events>): IEventBus<Events>;
+    on<Key extends keyof Events>(type: Key, handler: Handler<Events[Key]>): IEventBus<Events>;
+    on(type: any, handler: any): IEventBus<Events> {
+        this._emitter.on(type, handler);
         return this;
     }
 
-    off<Key extends keyof Events>(name: Key, handler: Handler<Events[Key]>): IEventBus<Events> {
-        this._emitter.off(name, handler);
+    off(type: "*", handler: WildcardHandler<Events>): IEventBus<Events>;
+    off<Key extends keyof Events>(name: Key, handler: Handler<Events[Key]>): IEventBus<Events>;
+    off(type: any, handler: any): IEventBus<Events> {
+        this._emitter.off(type, handler);
         return this;
     }
 
