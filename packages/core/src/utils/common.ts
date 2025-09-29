@@ -2,7 +2,7 @@
  * Common utils.
  *
  * !! Attention !!
- * As few dependencies as possible!
+ * !! As few dependencies as possible !!
  *
  */
 
@@ -15,6 +15,24 @@ import { IS_DECORATOR, IS_HOOK, IS_PROXY } from "$/consts";
  */
 export function assert(condition: any, message?: string) {
     if (!!!condition) throw new Error(message);
+}
+
+export function installToGlobalObject(content: Record<string, any>) {
+    const globalObj =
+        typeof window !== "undefined" ? window :
+        typeof globalThis !== "undefined" ? globalThis :
+        undefined as any;
+
+    if (!globalObj) {
+        return;
+    }
+
+    for (const key in content) {
+        if (globalObj[key] != null) {
+            log.warn(`core.common.installToGlobalObject: "${key}" has been installed, will be overridden.`);
+        }
+        globalObj[key] = content[key];
+    }
 }
 
 export function isDecorator(d: any): boolean {
