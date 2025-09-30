@@ -1,6 +1,6 @@
 {
     "name": "@cyysummer/element-plus",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "license": "MIT",
     "type": "module",
     "module": "./dist/index.js",
@@ -12,19 +12,21 @@
         }
     },
     "scripts": {
-        "dev": "tsup --watch",
-        "build": "rm -rf ./dist && tsup",
-        "postbuild": "mv dist/index.d.ts types/lib.d.ts",
+        "clean": "rm -rf ./dist",
+        "prebuild": "tsup --dts-only",
+        "build": "tsup --no-dts",
+        "postbuild": "mv -f dist/index.d.ts types/lib.d.ts",
+        "release": "pnpm run clean && pnpm run build",
         "test": "vitest"
     },
     "dependencies": {
         "@cyysummer/core": "workspace:^"
     },
     "peerDependencies": {
-        "element-plus": "catalog:"
+        "element-plus": ">=2.11.0",
+        "vue": ">=3.5.0"
     },
     "devDependencies": {
-        "element-plus": "catalog:",
         "tsup": "catalog:",
         "typescript": "catalog:",
         "vite": "catalog:",
