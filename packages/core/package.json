@@ -1,6 +1,6 @@
 {
     "name": "@cyysummer/core",
-    "version": "0.0.8",
+    "version": "0.0.9",
     "license": "MIT",
     "type": "module",
     "module": "./dist/index.js",

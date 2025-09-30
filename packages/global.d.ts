@@ -1,1 +1,1 @@
-/// <reference path="packages/core/types" />
+/// <reference path="./core/types" />
