@@ -1,15 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import chalk from "chalk";
-import { IS_BROWSER } from "../consts";
-
-const getStatus = (key: "DEBUG" | "TRACE"): boolean =>
-    globalThis[key] == true ||
-    (typeof window !== "undefined" && (window[key] == true || window.localStorage.getItem(key) == "1" || window.sessionStorage.getItem(key) == "1")) ||
-    (typeof process !== "undefined" && process.env[key] == "1");
-
-const __DEBUG = getStatus("DEBUG");
-const __TRACE = getStatus("TRACE");
+import { __DEBUG, __TRACE, IS_BROWSER } from "../consts";
 
 const chalkText = chalk.whiteBright;
 const successPrefix = chalkText.bgHex(IS_BROWSER ? "#14A44D" : "#15803D")(" SUCCESS ");
