@@ -63,7 +63,7 @@ async function main() {
         args.preid ||
         args.p ||
         (semver.prerelease(currentVersion) && semver.prerelease(currentVersion)![0]);
-    const preIdTag = preId ? "alpha" : "latest";
+    const preIdTag = preId ? "alpha" : "";
 
     const versionIncrements: semver.ReleaseType[] = [
         "prerelease",
