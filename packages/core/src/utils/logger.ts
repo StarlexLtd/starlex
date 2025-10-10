@@ -5,7 +5,7 @@ import { IS_BROWSER } from "../consts";
 
 const getStatus = (key: "DEBUG" | "TRACE"): boolean =>
     globalThis[key] == true ||
-    (typeof window !== "undefined" && window[key] == true) ||
+    (typeof window !== "undefined" && (window[key] == true || window.localStorage.getItem(key) == "1" || window.sessionStorage.getItem(key) == "1")) ||
     (typeof process !== "undefined" && process.env[key] == "1");
 
 const __DEBUG = getStatus("DEBUG");
