@@ -1,5 +1,5 @@
 import type { FormItemContext, FormItemRule } from "element-plus";
-import type { Ref } from "vue";
+import type { MultiWatchSources, Ref, WatchSource } from "vue";
 
 import { ElForm } from "element-plus";
 import { ref, watch } from "vue";
@@ -10,6 +10,9 @@ export interface ElFormRequiredRuleOptions {
 
     /** Validator trigger. */
     trigger?: string;
+
+    /** Additional watch source, for re-creating rules. */
+    watchSource?: WatchSource<unknown> | MultiWatchSources;
 }
 
 /**
@@ -48,8 +51,13 @@ export function createRequiredRules(form: typeof ElForm, options: ElFormRequired
  */
 export function useRequiredRules(formRef: Ref<typeof ElForm>, options: ElFormRequiredRuleOptions): Ref<Record<string, FormItemRule[]>> {
     const rulesRef = ref<Record<string, FormItemRule[]>>({});
+    const watchSources: MultiWatchSources =
+        Array.isArray(options.watchSource) ? [formRef, ...options.watchSource]
+            : options.watchSource == null ? [formRef]
+                : [formRef, options?.watchSource];
 
-    watch(formRef, form => {
+    watch(watchSources, curr => {
+        const form = curr[0] as typeof ElForm;
         if (!form) return;
         rulesRef.value = createRequiredRules(form, options);
     });
