@@ -1,6 +1,6 @@
 {
     "name": "@cyysummer/element-plus",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "license": "MIT",
     "type": "module",
     "module": "./dist/index.js",
@@ -15,6 +15,7 @@
         "clean": "rm -rf ./dist",
         "prebuild": "tsup --dts-only",
         "build": "tsup --no-dts",
+        "build:css": "lessc src/styles/index.less dist/index.css",
         "postbuild": "mv -f dist/index.d.ts types/lib.d.ts",
         "release": "pnpm run clean && pnpm run build",
         "test": "vitest"
@@ -27,6 +28,7 @@
         "vue": ">=3.5.0"
     },
     "devDependencies": {
+        "less": "catalog:",
         "tsup": "catalog:",
         "typescript": "catalog:",
         "vite": "catalog:",
