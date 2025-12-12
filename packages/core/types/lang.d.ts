@@ -14,6 +14,9 @@ declare global {
     export type ActionN<T extends any[] = []> = (...args: T) => void;
     export type FuncN<T extends any[] = [], R> = (...args: T) => R;
 
+    export type Predicate<T> = Func1<T, boolean>;
+    export type Iteratee<T, K> = Func1<T, K>;
+
     export type ActionT5<T1 = void, T2 = void, T3 = void, T4 = void, T5 = void> =
         T5 extends void ?
         T4 extends void ?
@@ -39,6 +42,9 @@ declare global {
         : (arg1: T1, arg2: T2, arg3: T3) => R
         : (arg1: T1, arg2: T2, arg3: T3, arg4: T4) => R
         : (arg1: T1, arg2: T2, arg3: T3, arg4: T4, arg5: T5) => R;
+
+    export type MaybePromise<T> = T | Promise<T>;
+    export type UnwrapPromise<T> = T extends Promise<infer K> ? K : T;
 }
 
 export { };
