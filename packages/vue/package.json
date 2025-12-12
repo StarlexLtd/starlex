@@ -1,0 +1,39 @@
+{
+    "name": "@cyysummer/vue",
+    "version": "0.0.1",
+    "license": "MIT",
+    "type": "module",
+    "module": "./dist/index.js",
+    "types": "./types",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "types": "./types/index.d.ts"
+        }
+    },
+    "scripts": {
+        "clean": "rm -rf ./dist",
+        "prebuild": "tsup --dts-only",
+        "build": "tsup --no-dts",
+        "build:css": "lessc src/styles/index.less dist/index.css",
+        "postbuild": "mv -f dist/index.d.ts types/lib.d.ts",
+        "release": "pnpm run clean && pnpm run build",
+        "test": "vitest"
+    },
+    "dependencies": {
+        "@cyysummer/core": "workspace:^"
+    },
+    "peerDependencies": {
+        "vue": ">=3.5.0"
+    },
+    "devDependencies": {
+        "less": "catalog:",
+        "tsup": "catalog:",
+        "typescript": "catalog:",
+        "vite": "catalog:",
+        "vitest": "catalog:"
+    },
+    "publishConfig": {
+        "access": "public"
+    }
+}
