@@ -1,5 +1,5 @@
 import type { FormItemContext, FormItemRule } from "element-plus";
-import type { MultiWatchSources, Ref, WatchSource } from "vue";
+import type { MultiWatchSources, Ref, WatchOptions, WatchSource } from "vue";
 
 import { ElForm } from "element-plus";
 import { ref, watch } from "vue";
@@ -45,22 +45,23 @@ export function createRequiredRules(form: typeof ElForm, options: ElFormRequired
  * Create rules Ref<> for ElForm.
  * Recommendation: turn off `validate-on-rule-change` for ElForm.
  *
- * @param formRef
- * @param options
+ * @param formRef The form which needs to create rules.
+ * @param ruleOptions Rules options.
+ * @param watchOptions Watch options, for re-creating rules.
  * @returns Ref<{}> which contains rules. You can bind it to ElForm.
  */
-export function useRequiredRules(formRef: Ref<typeof ElForm>, options: ElFormRequiredRuleOptions): Ref<Record<string, FormItemRule[]>> {
+export function useRequiredRules(formRef: Ref<typeof ElForm>, ruleOptions: ElFormRequiredRuleOptions, watchOptions?: WatchOptions): Ref<Record<string, FormItemRule[]>> {
     const rulesRef = ref<Record<string, FormItemRule[]>>({});
     const watchSources: MultiWatchSources =
-        Array.isArray(options.watchSource) ? [formRef, ...options.watchSource]
-            : options.watchSource == null ? [formRef]
-                : [formRef, options?.watchSource];
+        Array.isArray(ruleOptions.watchSource) ? [formRef, ...ruleOptions.watchSource]
+            : ruleOptions.watchSource == null ? [formRef]
+                : [formRef, ruleOptions?.watchSource];
 
     watch(watchSources, curr => {
         const form = curr[0] as typeof ElForm;
         if (!form) return;
-        rulesRef.value = createRequiredRules(form, options);
-    });
+        rulesRef.value = createRequiredRules(form, ruleOptions);
+    }, watchOptions);
 
     return rulesRef;
 }
