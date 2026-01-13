@@ -1,7 +1,7 @@
 import type { Patch } from "immer";
 
 export class Projector<TSource> implements IProjector<TSource> {
-    constructor(private _schema: ProjectorSchema<TSource>, private _scheduler: IScheduler<any>) {
+    constructor(private _schema: Schema<TSource>, private _scheduler: IScheduler<any>) {
     }
 
     public project(next: TSource, patches: Patch[]) {

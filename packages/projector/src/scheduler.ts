@@ -7,7 +7,7 @@ export abstract class Scheduler<TTarget> implements IScheduler<TTarget> {
     constructor(protected _target: TTarget | null = null) {
     }
 
-    public abstract enqueue(item: SchedulerItem<TTarget, any>): IScheduler<TTarget>;
+    public abstract enqueue(item: IScheduleItem<TTarget, any>): IScheduler<TTarget>;
     public abstract flush(): MaybePromise<void>;
 
     public withTarget(target: TTarget): IScheduler<TTarget>;
@@ -35,9 +35,9 @@ export abstract class Scheduler<TTarget> implements IScheduler<TTarget> {
  * Buffered scheduler, will buffer effects and execute them in batch.
  */
 export class BufferedScheduler<TTarget> extends Scheduler<TTarget> {
-    protected readonly _queue = new Map<string, SchedulerItem<TTarget, any>>();
+    protected readonly _queue = new Map<string, IScheduleItem<TTarget, any>>();
 
-    public override enqueue(item: SchedulerItem<TTarget, any>): IScheduler<TTarget> {
+    public override enqueue(item: IScheduleItem<TTarget, any>): IScheduler<TTarget> {
         // Same path will be overwritten, keep the latest.
         this._queue.set(item.path, item);
         return this;

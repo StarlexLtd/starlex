@@ -1,5 +1,5 @@
 // prettier-ignore
-type ProjectorSchema<TSource, T = any> = TSource extends object ?
+type Schema<TSource, T = any> = TSource extends object ?
     Partial<{
         // If the property is an array, map whole array to effect.
         // Else map property to schema.
@@ -7,7 +7,7 @@ type ProjectorSchema<TSource, T = any> = TSource extends object ?
         T[K] extends Array<infer U> ?
         Effect<TSource, U>
         // If TSource is an object, map each property to schema, or write effect for the property.
-        : ProjectorSchema<TSource, T[K]> | Effect<TSource, T[K]>;
+        : Schema<TSource, T[K]> | Effect<TSource, T[K]>;
     }>
     // Else map T to effect.
     : Effect<TSource, T>;
@@ -42,13 +42,13 @@ interface IProjector<TSource> {
 }
 
 interface IScheduler<TTarget> {
-    enqueue(effect: SchedulerItem): void;
+    enqueue(effect: IScheduleItem): void;
     flush(): MaybePromise<void>;
     withTarget(target: TTarget): IScheduler<TTarget>;
     withTarget(target: Func<TTarget>): IScheduler<TTarget>;
 }
 
-interface SchedulerItem<TSource, TValue> {
+interface IScheduleItem<TSource, TValue> {
     path: string;
     effect: Effect<TSource, TValue>;
     ctx: IEffectContext<TSource, TValue>;
