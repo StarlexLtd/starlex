@@ -45,6 +45,8 @@ declare global {
 
     export type MaybePromise<T> = T | Promise<T>;
     export type UnwrapPromise<T> = T extends Promise<infer K> ? K : T;
+
+    export type Constructor<T = object> = new (...args: any[]) => T;
 }
 
 export { };

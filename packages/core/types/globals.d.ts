@@ -36,37 +36,43 @@ declare global {
     };
 
     /**
-     * Event Bus
+     * Eventful
      */
-    interface IEventBus<Events extends Record<EventType, unknown>> extends Emitter<Events> {
-        /**
-         * Type cast, for a new sub set of events.
-         */
-        set<NewEventSet extends Record<EventType, unknown>>(): IEventBus<NewEventSet>;
-
+    interface IEventful<Events extends Record<EventType, unknown>> extends Emitter<Events> {
         /**
          * Attach handler to event.
          * @param type Event type
          * @param handler Event handler
          */
-        on<Key extends keyof Events>(type: Key, handler: Handler<Events[Key]>): IEventBus<Events>;
-        on(type: "*", handler: WildcardHandler<Events>): IEventBus<Events>;
+        on<Key extends keyof Events>(type: Key, handler: Handler<Events[Key]>): IEventful<Events>;
+        on(type: "*", handler: WildcardHandler<Events>): IEventful<Events>;
 
         /**
          * Detach handler from event.
          * @param type Event type
          * @param handler Event handler
          */
-        off<Key extends keyof Events>(type: Key, handler: Handler<Events[Key]>): IEventBus<Events>;
-        off(type: "*", handler: WildcardHandler<Events>): IEventBus<Events>;
+        off<Key extends keyof Events>(type: Key, handler: Handler<Events[Key]>): IEventful<Events>;
+        off(type: "*", handler: WildcardHandler<Events>): IEventful<Events>;
 
         /**
          * Emit the event.
          * @param type Event type
          * @param data Attached data
          */
-        emit<Key extends keyof Events>(type: Key, data?: Events[Key]): IEventBus<Events>;
-        emit<Key extends keyof Events>(type: undefined extends Events[Key] ? Key : never): IEventBus<Events>;
+        emit<Key extends keyof Events>(type: Key, data?: Events[Key]): IEventful<Events>;
+        emit<Key extends keyof Events>(type: undefined extends Events[Key] ? Key : never): IEventful<Events>;
+    }
+
+
+    /**
+     * Event Bus
+     */
+    interface IEventBus<Events extends Record<EventType, unknown>> extends IEventful<Events> {
+        /**
+         * Type cast, for a new sub set of events.
+         */
+        set<NewEventSet extends Record<EventType, unknown>>(): IEventBus<NewEventSet>;
     }
 
     // #endregion
