@@ -1,0 +1,41 @@
+{
+    "name": "@cyysummer/projector",
+    "version": "0.0.1",
+    "license": "MIT",
+    "type": "module",
+    "module": "./dist/index.js",
+    "types": "./types",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "types": "./types/index.d.ts"
+        }
+    },
+    "scripts": {
+        "dev": "tsup --watch",
+        "clean": "rm -rf ./dist",
+        "prebuild": "tsup --dts-only",
+        "build": "tsup --no-dts",
+        "postbuild": "mv -f dist/index.d.ts types/lib.d.ts",
+        "release": "pnpm run clean && pnpm run build",
+        "test": "vitest"
+    },
+    "dependencies": {
+        "@cyysummer/core": "workspace:^",
+        "immer": "catalog:",
+        "lodash-es": "catalog:"
+    },
+    "peerDependencies": {
+        "@cyysummer/core": "workspace:^"
+    },
+    "devDependencies": {
+        "@types/lodash-es": "catalog:",
+        "tsup": "catalog:",
+        "typescript": "catalog:",
+        "vite": "catalog:",
+        "vitest": "catalog:"
+    },
+    "publishConfig": {
+        "access": "public"
+    }
+}
