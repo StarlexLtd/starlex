@@ -7,8 +7,9 @@
         "dev": "pnpm --filter @cyysummer/playground dev",
         "core:build": "pnpm --filter @cyysummer/core build",
         "core:test": "pnpm --filter @cyysummer/core test",
-        "core:release": "tsx scripts/release.ts core --preid --skipTests",
-        "el:release": "tsx scripts/release.ts element-plus",
+        "core:release": "tsx scripts/release.ts --preid --skipTests core",
+        "el:release": "tsx scripts/release.ts --preid --skipTests element-plus",
+        "release": "tsx scripts/release.ts --preid --skipTests ",
         "create:module": "pnpm tsx scripts/create-module.ts"
     },
     "types": "test-dts/index.d.ts",

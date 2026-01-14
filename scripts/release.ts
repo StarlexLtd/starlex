@@ -23,15 +23,22 @@ interface IArgs {
 }
 
 const { prompt } = enquirer;
-const targetPath = path.resolve(process.cwd(), "packages/", process.argv[2]);
+const packageName = process.argv.at(-1);
+if (!packageName) {
+    log.error("Package name not specified.");
+    log.info("Usage: release.ts [Options] <PackageName>");
+    process.exit(0);
+}
+
+const targetPath = path.resolve(process.cwd(), "packages/", packageName);
 if (!fs.existsSync(targetPath)) {
     log.error("Path not exists:", targetPath);
-    log.info("Usage: release.ts <PackageName>");
+    log.info("Usage: release.ts [Options] <PackageName>");
     process.exit(0);
 }
 process.chdir(targetPath);
 
-const args = minimist<IArgs>(process.argv.slice(3));
+const args = minimist<IArgs>(process.argv.slice(2, -1));
 
 const MAIN_PACKAGE_FILE = "./package.json";
 
@@ -64,7 +71,7 @@ async function main() {
         args.preid ||
         args.p ||
         (semver.prerelease(currentVersion) && semver.prerelease(currentVersion)![0]);
-    const preIdTag = preId ? "alpha" : "";
+    const preIdTag = preId ? "a" : "";  // a - alpha
 
     const versionIncrements: semver.ReleaseType[] = [
         "prerelease",
