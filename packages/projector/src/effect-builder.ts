@@ -1,3 +1,5 @@
+import type { Effect, ITargetStrategy, IEffectContext } from "../types";
+
 import { get } from "lodash-es";
 
 const _nullEffect: Effect<any, any> = (ctx) => { };

@@ -1,8 +1,10 @@
+import type { Effect, IProjector, IScheduler, Patch, Schema } from "../types";
+
 import { set } from "lodash-es";
 import { withEvents } from "@cyysummer/core";
 
 type RecorderEvents = {
-    record: { next: any; path: any[]; value: any; };
+    record: { next: any; patches: Patch[]; };
 }
 
 /**
@@ -23,7 +25,7 @@ export class Recorder<TSource extends object> extends withEvents<RecorderEvents>
         // todo: what will happen after array changes?
         set(this._shadow, path, value);
         // todo: make sure `next` is sync-ed with `initial` changes.
-        this.emit("record", { next: this._shadow, path, value });
+        this.emit("record", { next: this._shadow, patches: [{ path, value }] });
     }
 
     public pause() {

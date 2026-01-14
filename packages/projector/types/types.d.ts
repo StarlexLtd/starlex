@@ -1,5 +1,5 @@
 // prettier-ignore
-type Schema<TSource, T = any> = TSource extends object ?
+export type Schema<TSource, T = any> = TSource extends object ?
     Partial<{
         // If the property is an array, map whole array to effect.
         // Else map property to schema.
@@ -13,9 +13,9 @@ type Schema<TSource, T = any> = TSource extends object ?
     : Effect<TSource, T>;
 
 // todo: Solve this `any`
-type Effect<TSource, TValue> = (target: any, ctx: IEffectContext<TSource, TValue>) => MaybePromise<void>;
+export type Effect<TSource, TValue> = (target: any, ctx: IEffectContext<TSource, TValue>) => MaybePromise<void>;
 
-interface IEffectContext<TSource, TValue> {
+export interface IEffectContext<TSource, TValue> {
     /**
      * The source object.
      */
@@ -32,29 +32,29 @@ interface IEffectContext<TSource, TValue> {
     value: TValue;
 }
 
-interface ITargetStrategy<TTarget> {
+export interface ITargetStrategy<TTarget> {
     execute<T>(target: TTarget, at: string, value: T): MaybePromise<void>;
     executeArray<T>(target: TTarget, at: string, keys: Partial<keyof T>[], rows: T[]): MaybePromise<void>;
 }
 
-interface IProjector<TSource> {
+export interface IProjector<TSource> {
     project(next: TSource, ...patches: Patch[]): void;
 }
 
-interface IScheduler<TTarget> {
+export interface IScheduler<TTarget> {
     enqueue(effect: IScheduleItem): void;
     flush(): MaybePromise<void>;
     withTarget(target: TTarget): IScheduler<TTarget>;
     withTarget(target: Func<TTarget>): IScheduler<TTarget>;
 }
 
-interface IScheduleItem<TSource, TValue> {
+export interface IScheduleItem<TSource, TValue> {
     path: string;
     effect: Effect<TSource, TValue>;
     ctx: IEffectContext<TSource, TValue>;
 }
 
-interface Patch {
+export interface Patch {
     path: (string | symbol)[];
     value: any;
 }

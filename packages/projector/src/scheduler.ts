@@ -1,3 +1,5 @@
+import type { IScheduleItem, IScheduler } from "../types";
+
 /**
  * Scheduler abstract class, used to schedule projector effects.
  */

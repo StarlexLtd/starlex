@@ -1,3 +1,5 @@
+import type { Effect, IProjector, IScheduler, Patch, Schema } from "../types";
+
 export class Projector<TSource> implements IProjector<TSource> {
     constructor(private _schema: Schema<TSource>, private _scheduler: IScheduler<any>) {
     }
