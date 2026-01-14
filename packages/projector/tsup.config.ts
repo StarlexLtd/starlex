@@ -7,4 +7,6 @@ const localConfig = definePackageConfig(pkg);
 export default defineConfig({
     ...rootConfig,
     ...localConfig,
+    minify: true,
+    sourcemap: false,
 });

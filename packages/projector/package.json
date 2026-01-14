@@ -1,7 +1,13 @@
 {
     "name": "@cyysummer/projector",
-    "version": "0.0.1",
+    "version": "0.0.1-alpha.0",
+    "description": "A powerful state projection library for creating anything.",
     "license": "MIT",
+    "author": "Chris Liu",
+    "files": [
+        "dist/**",
+        "types/**"
+    ],
     "type": "module",
     "module": "./dist/index.js",
     "types": "./types",
