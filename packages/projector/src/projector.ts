@@ -1,10 +1,8 @@
-import type { Patch } from "immer";
-
 export class Projector<TSource> implements IProjector<TSource> {
     constructor(private _schema: Schema<TSource>, private _scheduler: IScheduler<any>) {
     }
 
-    public project(next: TSource, patches: Patch[]) {
+    public project(next: TSource, ...patches: Patch[]) {
         if (!this._schema) {
             throw new Error("Schema not loaded");
         }
@@ -15,7 +13,7 @@ export class Projector<TSource> implements IProjector<TSource> {
     }
 
     private _dispatch(next: TSource, patch: Patch) {
-        const { path, op, value } = patch;
+        const { path, value } = patch;
         const effect = this._resolveEffect(path);
         if (!effect) return;
 
@@ -30,7 +28,7 @@ export class Projector<TSource> implements IProjector<TSource> {
         });
     }
 
-    private _resolveEffect(path: (string | number)[]): Effect<TSource, any> | null {
+    private _resolveEffect(path: (string | symbol)[]): Effect<TSource, any> | null {
         let node = this._schema;
         for (const key of path) {
             if (!node) return null;

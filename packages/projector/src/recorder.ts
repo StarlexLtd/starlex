@@ -1,40 +1,36 @@
-import type { Patch } from "immer";
-
-import { withEvents } from "@cyysummer/core";
-import { produceWithPatches } from "immer";
 import { set } from "lodash-es";
+import { withEvents } from "@cyysummer/core";
 
 type RecorderEvents = {
-    record: { next: any; patches: Patch[]; };
+    record: { next: any; path: any[]; value: any; };
 }
 
 /**
  * Record changes to an object.
  */
-export class Recorder<T> extends withEvents<RecorderEvents>() {
-    private _shadow: T;
-    private _terminated = false;
+export class Recorder<TSource extends object> extends withEvents<RecorderEvents>() {
+    private _paused = false;
+    private _shadow: TSource;
 
-    constructor(initial: T) {
+    constructor(initial: TSource) {
         super();
         this._shadow = structuredClone(initial);
     }
 
     public record(path: any[], value: any) {
-        if (this._terminated) return;
+        if (this._paused) return;
 
-        const [next, patches] = produceWithPatches<T>(this._shadow, (draft) => {
-            set(draft as any, path, value);
-        });
-        this._shadow = next;
-        this.emit("record", { next, patches });
+        // todo: what will happen after array changes?
+        set(this._shadow, path, value);
+        // todo: make sure `next` is sync-ed with `initial` changes.
+        this.emit("record", { next: this._shadow, path, value });
     }
 
-    public start() {
-        this._terminated = false;
+    public pause() {
+        this._paused = true;
     }
 
-    public stop() {
-        this._terminated = true;
+    public resume() {
+        this._paused = false;
     }
 }

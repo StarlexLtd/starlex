@@ -38,7 +38,7 @@ interface ITargetStrategy<TTarget> {
 }
 
 interface IProjector<TSource> {
-    project(next: TSource, patches: Patch[]): void;
+    project(next: TSource, ...patches: Patch[]): void;
 }
 
 interface IScheduler<TTarget> {
@@ -52,4 +52,9 @@ interface IScheduleItem<TSource, TValue> {
     path: string;
     effect: Effect<TSource, TValue>;
     ctx: IEffectContext<TSource, TValue>;
+}
+
+interface Patch {
+    path: (string | symbol)[];
+    value: any;
 }

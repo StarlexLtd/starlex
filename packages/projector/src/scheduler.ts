@@ -45,6 +45,7 @@ export class BufferedScheduler<TTarget> extends Scheduler<TTarget> {
 
     public override async flush(): Promise<void> {
         this.checkTarget();
+        log.trace("BufferedScheduler: flushing");
 
         // make a shallow copy
         const q = [...this._queue.values()];

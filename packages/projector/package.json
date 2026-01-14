@@ -28,8 +28,8 @@
     },
     "dependencies": {
         "@cyysummer/core": "workspace:^",
-        "immer": "catalog:",
-        "lodash-es": "catalog:"
+        "lodash-es": "catalog:",
+        "on-change": "catalog:"
     },
     "peerDependencies": {
         "@cyysummer/core": "workspace:^"

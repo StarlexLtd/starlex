@@ -1,9 +1,9 @@
-import { tracking } from "@cyysummer/core";
+import onChange from "on-change";
 import { Recorder } from "./recorder";
 
-export function track<T>(initial: T): [T, Recorder<T>] {
+export function track<TSource extends object>(initial: TSource): [TSource, Recorder<TSource>] {
     const recorder = new Recorder(initial);
-    const tracked = tracking(initial, { onSet: recorder.record.bind(recorder) });
+    const tracked = onChange(initial, recorder.record.bind(recorder), { pathAsArray: true });
     return [tracked, recorder];
 }
 
