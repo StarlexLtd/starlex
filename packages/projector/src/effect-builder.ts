@@ -1,4 +1,4 @@
-import type { Effect, ITargetStrategy, IEffectContext } from "../types";
+import type { Effect, ITargetExecutionStrategy, IEffectContext } from "../types";
 
 import { get } from "lodash-es";
 
@@ -8,7 +8,7 @@ const _nullEffect: Effect<any, any> = (ctx) => { };
  * Build effects for a target.
  */
 export class EffectBuilder<TTarget, TSource extends object> {
-    constructor(private _strategy: ITargetStrategy<TTarget>) {
+    constructor(private _strategy: ITargetExecutionStrategy<TTarget>) {
     }
 
     /**

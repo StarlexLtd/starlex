@@ -1,3 +1,6 @@
+/**
+ * A Schema defines how to project changes from a source object to a target object.
+ */
 // prettier-ignore
 export type Schema<TSource, T = any> = TSource extends object ?
     Partial<{
@@ -12,9 +15,15 @@ export type Schema<TSource, T = any> = TSource extends object ?
     // Else map T to effect.
     : Effect<TSource, T>;
 
+/**
+ * An effect defines how to project a value from source to target.
+ */
 // todo: Solve this `any`
 export type Effect<TSource, TValue> = (target: any, ctx: IEffectContext<TSource, TValue>) => MaybePromise<void>;
 
+/**
+ * The context for an effect. It contains information about changes.
+ */
 export interface IEffectContext<TSource, TValue> {
     /**
      * The source object.
@@ -32,9 +41,12 @@ export interface IEffectContext<TSource, TValue> {
     value: TValue;
 }
 
-export interface ITargetStrategy<TTarget> {
-    execute<T>(target: TTarget, at: string, value: T): MaybePromise<void>;
-    executeArray<T>(target: TTarget, at: string, keys: Partial<keyof T>[], rows: T[]): MaybePromise<void>;
+/**
+ * Strategy defines actual execution methods for projecting values to target.
+ */
+export interface ITargetExecutionStrategy<TTarget, TLocation = any> {
+    execute<T>(target: TTarget, at: TLocation, value: T): MaybePromise<void>;
+    executeArray<T>(target: TTarget, at: TLocation, keys: Partial<keyof T>[], rows: T[]): MaybePromise<void>;
 }
 
 export interface IProjector<TSource> {

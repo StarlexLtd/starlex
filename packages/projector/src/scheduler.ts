@@ -4,9 +4,9 @@ import type { IScheduleItem, IScheduler } from "../types";
  * Scheduler abstract class, used to schedule projector effects.
  */
 export abstract class Scheduler<TTarget> implements IScheduler<TTarget> {
-    protected _targetFactory: Func<TTarget> | null = null;
+    protected _targetFactory?: Func<TTarget>;
 
-    constructor(protected _target: TTarget | null = null) {
+    constructor(protected _target?: TTarget) {
     }
 
     public abstract enqueue(item: IScheduleItem<TTarget, any>): IScheduler<TTarget>;
