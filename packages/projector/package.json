@@ -5,7 +5,7 @@
     "license": "MIT",
     "author": "Chris Liu",
     "files": [
-        "dist/**",
+        "dist/*.js",
         "types/**"
     ],
     "type": "module",

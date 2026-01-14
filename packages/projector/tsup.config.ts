@@ -8,5 +8,5 @@ export default defineConfig({
     ...rootConfig,
     ...localConfig,
     minify: true,
-    sourcemap: false,
+    sourcemap: true,
 });
