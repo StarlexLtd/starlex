@@ -37,7 +37,7 @@ export class Recorder<TSource extends object> extends withEvents<RecorderEvents>
         this.emit("record", { next: this._shadow, patches });
 
         // Projection is lazy, only project when there is a projector.
-        this._checkProjector();
+        this._ensureProjector();
         this._projector?.project(this._shadow, ...patches);
     }
 
@@ -68,7 +68,7 @@ export class Recorder<TSource extends object> extends withEvents<RecorderEvents>
         this._paused = false;
     }
 
-    private _checkProjector() {
+    private _ensureProjector() {
         if (!this._projector && this._projectorFactory) {
             this._projector = this._projectorFactory();
         }
