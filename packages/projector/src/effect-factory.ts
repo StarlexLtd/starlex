@@ -7,8 +7,8 @@ const _nullEffect: Effect<any, any> = (ctx) => { };
 /**
  * Build effects for a target.
  */
-export class EffectBuilder<TTarget, TSource extends object> {
-    constructor(private _strategy: ITargetExecutionStrategy<TTarget>) {
+export class EffectFactory<TTarget, TSource extends object, TLocation = any> {
+    constructor(protected _strategy: ITargetExecutionStrategy<TTarget, TLocation>) {
     }
 
     /**
@@ -56,7 +56,7 @@ export class EffectBuilder<TTarget, TSource extends object> {
      * @param at The location in `TTarget` where the effect is to be executed.
      * @returns
      */
-    public create<T>(at: string): Effect<TSource, T> {
+    public create<T>(at: TLocation): Effect<TSource, T> {
         return (target: any, ctx: IEffectContext<TSource, T>) => {
             const value = _getValue(ctx);
             return this._strategy.execute(target, at, value);
@@ -105,7 +105,7 @@ export class EffectBuilder<TTarget, TSource extends object> {
      * @param customizer Function to transform the source object.
      * @returns
      */
-    public createRoot<T>(at: string, customizer: Func1<TSource, string>): Effect<TSource, T> {
+    public createRoot<T>(at: TLocation, customizer: Func1<TSource, string>): Effect<TSource, T> {
         return (target: any, ctx: IEffectContext<TSource, T>) => {
             // todo: Solve this `any`.
             const value = customizer(ctx.source as any);
@@ -118,7 +118,7 @@ export class EffectBuilder<TTarget, TSource extends object> {
      * @param at The location in `TTarget` where the effect is to be executed.
      * @returns
      */
-    public createForArray<T extends Array<U>, U extends object = any>(at: string): Effect<TSource, T> {
+    public createForArray<T extends Array<U>, U extends object = any>(at: TLocation): Effect<TSource, T> {
         return (target: any, ctx: IEffectContext<TSource, T>) => {
             const rows = ctx.path ? get(ctx.source, ctx.path) as U[] : ctx.value as U[];
             // Only calls when `rows` is definitely an array and has data.
@@ -135,7 +135,7 @@ export class EffectBuilder<TTarget, TSource extends object> {
      * @param raw Raw value to use.
      * @returns
      */
-    public createForRaw<T>(at: string, raw: T): Effect<TSource, T> {
+    public createForRaw<T>(at: TLocation, raw: T): Effect<TSource, T> {
         return (target: any, ctx: IEffectContext<TSource, T>) => {
             return this._strategy.execute(target, at, raw);
         };
@@ -147,7 +147,7 @@ export class EffectBuilder<TTarget, TSource extends object> {
      * @param customizer Function to transform the source object.
      * @returns
      */
-    public createWith<T, R>(at: string, customizer: Func1<T, R>):  Effect<TSource, R> {
+    public createWith<T, R>(at: TLocation, customizer: Func1<T, R>):  Effect<TSource, R> {
         const e = (target: any, ctx: IEffectContext<TSource, T>) => {
             const value = _getValue(ctx);
             const customized = customizer(value);

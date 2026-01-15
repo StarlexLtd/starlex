@@ -12,7 +12,7 @@ export function track<TSource extends object>(initial: TSource): [TSource, Recor
     return [tracked, recorder];
 }
 
-export * from "./effect-builder";
+export * from "./effect-factory";
 export * from "./projector";
 export * from "./recorder";
 export * from "./scheduler";
