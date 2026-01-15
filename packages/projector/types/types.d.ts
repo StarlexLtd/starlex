@@ -2,18 +2,16 @@
  * A Schema defines how to project changes from a source object to a target object.
  */
 // prettier-ignore
-export type Schema<TSource, T = any> = TSource extends object ?
-    Partial<{
-        // If the property is an array, map whole array to effect.
-        // Else map property to schema.
-        [K in keyof T]:
-        T[K] extends Array<infer U> ?
-        Effect<TSource, U>
-        // If TSource is an object, map each property to schema, or write effect for the property.
-        : Schema<TSource, T[K]> | Effect<TSource, T[K]>;
-    }>
-    // Else map T to effect.
-    : Effect<TSource, T>;
+export type Schema<TSource, T = TSource> = {
+    // If the property is an array, map to effect.
+    [K in keyof T]?: T[K] extends Array<infer U>
+        ? Effect<TSource, U[]>
+        // Else, if the property is an object, map to schema or effect.
+        : T[K] extends object
+            ? Schema<TSource, T[K]> | Effect<TSource, T[K]>
+            // Else, leaf property, map to effect.
+            : Effect<TSource, T[K]>;
+};
 
 /**
  * An effect defines how to project a value from source to target.
