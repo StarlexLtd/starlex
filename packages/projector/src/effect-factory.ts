@@ -2,7 +2,7 @@ import type { Effect, ITargetExecutionStrategy, IEffectContext } from "../types"
 
 import { get } from "lodash-es";
 
-const _nullEffect: Effect<any, any> = (ctx) => { };
+const _noopEffect: Effect<any, any> = (ctx) => { };
 
 /**
  * Build effects for a target.
@@ -16,9 +16,9 @@ export class EffectFactory<TTarget, TSource extends object, TLocation = any> {
      * @param effects Effects to call.
      * @returns
      */
-    public chain<T>(effects: Effect<TSource, T>[]): Effect<TSource, T> {
+    public sequence<T>(effects: Effect<TSource, T>[]): Effect<TSource, T> {
         return async (target: any, ctx: IEffectContext<TSource, T>) => {
-            const value = _getValue(ctx);
+            const value = _resolveValue(ctx);
             for (const f of effects) {
                 await f(target, {
                     // source: ctx.source,
@@ -30,15 +30,15 @@ export class EffectFactory<TTarget, TSource extends object, TLocation = any> {
     }
 
     /**
-     * Call multiple effects in sequence. Use `customizer` to transform the original value.
+     * Call multiple effects in sequence. Use `mapper` to transform the original value.
      * @param effects Effects to call.
-     * @param customizer Function to transform the original value.
+     * @param mapper Function to transform the original value.
      * @returns
      */
-    public chainWith<T, R>(effects: Effect<TSource, R>[], customizer: Func1<T, R>): Effect<TSource, R> {
-        const e = async (target: any, ctx: IEffectContext<TSource, T>) => {
-            const raw = _getValue(ctx);
-            const value = customizer(raw);
+    public sequenceWith<T, R>(effects: Effect<TSource, R>[], mapper: Func1<T, R>): Effect<TSource, R> {
+        const effect = async (target: any, ctx: IEffectContext<TSource, T>) => {
+            const raw = _resolveValue(ctx);
+            const value = mapper(raw);
             for (const f of effects) {
                 await f(target, {
                     // source: ctx.source,
@@ -48,18 +48,18 @@ export class EffectFactory<TTarget, TSource extends object, TLocation = any> {
             }
         };
         // todo: Solve this `unknown`
-        return e as unknown as Effect<TSource, R>;
+        return effect as unknown as Effect<TSource, R>;
     }
 
     /**
-     * Create an effect for the specified location.
-     * @param at The location in `TTarget` where the effect is to be executed.
+     * Create an effect that will applied at the specified location.
+     * @param location The location in `TTarget` where the effect is executed.
      * @returns
      */
-    public create<T>(at: TLocation): Effect<TSource, T> {
+    public create<T>(location: TLocation): Effect<TSource, T> {
         return (target: any, ctx: IEffectContext<TSource, T>) => {
-            const value = _getValue(ctx);
-            return this._strategy.execute(target, at, value);
+            const value = _resolveValue(ctx);
+            return this._strategy.execute(target, location, value);
         };
     }
 
@@ -70,9 +70,9 @@ export class EffectFactory<TTarget, TSource extends object, TLocation = any> {
      * @param whenFalse When condition is false, this effect is executed.
      * @returns
      */
-    public createIf<T>(condition: Predicate<T>, whenTrue: Effect<TSource, any>, whenFalse: Effect<TSource, any> = _nullEffect): Effect<TSource, T> {
+    public when<T>(condition: Predicate<T>, whenTrue: Effect<TSource, any>, whenFalse: Effect<TSource, any> = _noopEffect): Effect<TSource, T> {
         return (target: any, ctx: IEffectContext<TSource, T>) => {
-            const value = _getValue(ctx);
+            const value = _resolveValue(ctx);
             const cond = condition(value);
             const e = cond ? whenTrue : whenFalse;
             return e(target, {
@@ -90,7 +90,7 @@ export class EffectFactory<TTarget, TSource extends object, TLocation = any> {
      * @param whenFalse When condition is false, this effect is executed.
      * @returns
      */
-    public createIfRoot<T>(condition: Predicate<TSource>, whenTrue: Effect<TSource, any>, whenFalse: Effect<TSource, any> = _nullEffect): Effect<TSource, T> {
+    public whenFromSource<T>(condition: Predicate<TSource>, whenTrue: Effect<TSource, any>, whenFalse: Effect<TSource, any> = _noopEffect): Effect<TSource, T> {
         return (target: any, ctx: IEffectContext<TSource, T>) => {
             // todo: Solve this `any`.
             const cond = condition(ctx.source as any);
@@ -100,58 +100,64 @@ export class EffectFactory<TTarget, TSource extends object, TLocation = any> {
     }
 
     /**
-     * Create an effect for the specified location. Use customizer to transform the source object.
-     * @param at The location in `TTarget` where the effect is to be executed.
-     * @param customizer Function to transform the source object.
+     * Create an effect that will applied at the specified location. Use `mapper` to transform the source object.
+     * @param location The location in `TTarget` where the effect is executed.
+     * @param mapper Function to transform the source object.
      * @returns
      */
-    public createRoot<T>(at: TLocation, customizer: Func1<TSource, string>): Effect<TSource, T> {
+    public createFromSource<T>(location: TLocation, mapper: Func1<TSource, string>): Effect<TSource, T> {
         return (target: any, ctx: IEffectContext<TSource, T>) => {
             // todo: Solve this `any`.
-            const value = customizer(ctx.source as any);
-            return this._strategy.execute(target, at, value);
+            const value = mapper(ctx.source as any);
+            return this._strategy.execute(target, location, value);
+        };
+    }
+
+    public forEach<T extends Array<U>, U extends object = any>(location: Func1<number, TLocation>): Effect<TSource, any> {
+        return (target: any, ctx: IEffectContext<TSource, T>) => {
+            // todo: impl.
         };
     }
 
     /**
-     * Create an effect for the specified location for array data.
-     * @param at The location in `TTarget` where the effect is to be executed.
+     * Create an effect that will applied at the specified location for array data.
+     * @param location The location in `TTarget` where the effect is executed.
      * @returns
      */
-    public createForArray<T extends Array<U>, U extends object = any>(at: TLocation): Effect<TSource, T> {
+    public fromArray<T extends Array<U>, U extends object = any>(location: TLocation): Effect<TSource, T> {
         return (target: any, ctx: IEffectContext<TSource, T>) => {
             const rows = ctx.path ? get(ctx.source, ctx.path) as U[] : ctx.value as U[];
             // Only calls when `rows` is definitely an array and has data.
             if (rows && Array.isArray(rows) && rows.length > 0) {
                 const keys = Object.keys(rows[0]) as (keyof U)[];
-                return this._strategy.executeArray(target, at, keys, rows);
+                return this._strategy.executeArray(target, location, keys, rows);
             }
         };
     }
 
     /**
-     * Create an effect for the specified location for raw value. This will not read from source object.
-     * @param at The location in `TTarget` where the effect is to be executed.
-     * @param raw Raw value to use.
+     * Create an effect that will applied at the specified location for raw value. This effect will not read from source object.
+     * @param location The location in `TTarget` where the effect is executed.
+     * @param value The value to use.
      * @returns
      */
-    public createForRaw<T>(at: TLocation, raw: T): Effect<TSource, T> {
+    public fromValue<T>(location: TLocation, value: T): Effect<TSource, T> {
         return (target: any, ctx: IEffectContext<TSource, T>) => {
-            return this._strategy.execute(target, at, raw);
+            return this._strategy.execute(target, location, value);
         };
     }
 
     /**
-     * Create an effect for the specified location. Use `customizer` to transform the source object.
-     * @param at The location in `TTarget` where the effect is to be executed.
-     * @param customizer Function to transform the source object.
+     * Create an effect that will applied at the specified location. Use `mapper` to transform the source object.
+     * @param location The location in `TTarget` where the effect is executed.
+     * @param mapper Function to transform the source object.
      * @returns
      */
-    public createWith<T, R>(at: TLocation, customizer: Func1<T, R>):  Effect<TSource, R> {
+    public createWith<T, R>(location: TLocation, mapper: Func1<T, R>): Effect<TSource, R> {
         const e = (target: any, ctx: IEffectContext<TSource, T>) => {
-            const value = _getValue(ctx);
-            const customized = customizer(value);
-            return this._strategy.execute(target, at, customized);
+            const value = _resolveValue(ctx);
+            const customized = mapper(value);
+            return this._strategy.execute(target, location, customized);
         };
         // todo: Solve this `unknown`
         return e as unknown as Effect<TSource, R>;
@@ -159,6 +165,6 @@ export class EffectFactory<TTarget, TSource extends object, TLocation = any> {
 
 }
 
-function _getValue<TSource, TValue>(ctx: IEffectContext<TSource, TValue>) {
+function _resolveValue<TSource, TValue>(ctx: IEffectContext<TSource, TValue>) {
     return ((!!ctx.source && !!ctx.path) ? get(ctx.source, ctx.path) : ctx.value) as TValue;
 }

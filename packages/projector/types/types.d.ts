@@ -45,8 +45,8 @@ export interface IEffectContext<TSource, TValue> {
  * Strategy defines actual execution methods for projecting values to target.
  */
 export interface ITargetExecutionStrategy<TTarget, TLocation = any> {
-    execute<T>(target: TTarget, at: TLocation, value: T): MaybePromise<void>;
-    executeArray<T>(target: TTarget, at: TLocation, keys: Partial<keyof T>[], rows: T[]): MaybePromise<void>;
+    execute<T>(target: TTarget, location: TLocation, value: T): MaybePromise<void>;
+    executeArray<T>(target: TTarget, location: TLocation, keys: Partial<keyof T>[], rows: T[]): MaybePromise<void>;
 }
 
 export interface IProjector<TSource> {
