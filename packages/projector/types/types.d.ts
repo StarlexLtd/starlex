@@ -40,11 +40,26 @@ export interface IEffectContext<TSource, TValue> {
 }
 
 /**
+ * Options for execute array effect.
+ */
+export type ArrayEffectOptions = {
+    /**
+     * The keys of the objects in the array. Use this only when element of array is object.
+     */
+    keys: (string | symbol)[];
+
+    /**
+     * Function to generate header for each column.
+     */
+    resolveHeader: (key: string | symbol, index?: number) => string;
+}
+
+/**
  * Strategy defines actual execution methods for projecting values to target.
  */
 export interface ITargetExecutionStrategy<TTarget, TLocation = any> {
-    execute<T>(target: TTarget, location: TLocation, value: T): MaybePromise<void>;
-    executeArray<T>(target: TTarget, location: TLocation, keys: Partial<keyof T>[], rows: T[]): MaybePromise<void>;
+    execute<T extends any>(target: TTarget, location: TLocation, value: T): MaybePromise<void>;
+    executeArray<T extends any>(target: TTarget, location: TLocation, rows: T[], options: ArrayEffectOptions): MaybePromise<void>;
 }
 
 export interface IProjector<TSource> {
