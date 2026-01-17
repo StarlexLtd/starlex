@@ -1,33 +1,34 @@
-import type { IScheduleItem, IScheduler } from "../types";
+import type { IScheduleItem, IScheduler, ITargetExecutionStrategy } from "../types";
 
 /**
  * Scheduler abstract class, used to schedule projector effects.
  */
 export abstract class Scheduler<TTarget> implements IScheduler<TTarget> {
-    protected _targetFactory?: Func<TTarget>;
+    protected readonly _queue = new Map<string, IScheduleItem<any, any>>();
+    protected _strategyFactory?: Func<ITargetExecutionStrategy<TTarget, any>>;
 
-    constructor(protected _target?: TTarget) {
+    constructor(protected _strategy?: ITargetExecutionStrategy<TTarget, any>) {
     }
 
-    public abstract enqueue(item: IScheduleItem<TTarget, any>): IScheduler<TTarget>;
+    public abstract enqueue(item: IScheduleItem<any, any>): IScheduler<TTarget>;
     public abstract flush(): MaybePromise<void>;
 
-    public withTarget(target: TTarget): IScheduler<TTarget>;
-    public withTarget(target: Func<TTarget>): IScheduler<TTarget>;
-    public withTarget(target: TTarget | Func<TTarget>): IScheduler<TTarget> {
-        if (typeof target === "function") {
-            this._targetFactory = target as any;
+    public withStrategy(strategy: ITargetExecutionStrategy<TTarget, any>): IScheduler<TTarget>;
+    public withStrategy(strategy: Func<ITargetExecutionStrategy<TTarget, any>>): IScheduler<TTarget>;
+    public withStrategy(strategy: ITargetExecutionStrategy<TTarget, any> | Func<ITargetExecutionStrategy<TTarget, any>>): IScheduler<TTarget> {
+        if (typeof strategy === "function") {
+            this._strategyFactory = strategy as any;
         } else {
-            this._target = target;
+            this._strategy = strategy;
         }
         return this;
     }
 
-    protected checkTarget() {
-        (!this._target && this._targetFactory)
-            && (this._target = this._targetFactory());
+    protected checkStrategy() {
+        (!this._strategy && this._strategyFactory)
+            && (this._strategy = this._strategyFactory());
 
-        if (!this._target) {
+        if (!this._strategy) {
             throw new Error("Scheduler: target is not set");
         }
     }
@@ -37,17 +38,15 @@ export abstract class Scheduler<TTarget> implements IScheduler<TTarget> {
  * Buffered scheduler, will buffer effects and execute them in batch.
  */
 export class BufferedScheduler<TTarget> extends Scheduler<TTarget> {
-    protected readonly _queue = new Map<string, IScheduleItem<TTarget, any>>();
-
-    public override enqueue(item: IScheduleItem<TTarget, any>): IScheduler<TTarget> {
+    public override enqueue(item: IScheduleItem<any, any>): IScheduler<TTarget> {
         // Same path will be overwritten, keep the latest.
         this._queue.set(item.path, item);
         return this;
     }
 
     public override async flush(): Promise<void> {
-        this.checkTarget();
-        log.trace("BufferedScheduler: flushing");
+        this.checkStrategy();
+        log.trace("BufferedScheduler: flushing", [...this._queue.keys()]);
 
         // make a shallow copy
         const q = [...this._queue.values()];
@@ -56,7 +55,7 @@ export class BufferedScheduler<TTarget> extends Scheduler<TTarget> {
 
         for (const item of q) {
             const { effect, ctx } = item;
-            const result = effect(this._target, ctx);
+            const result = effect(this._strategy!, ctx);
             if (result instanceof Promise) {
                 await result;
             }

@@ -16,8 +16,8 @@ export type Schema<TSource, T = TSource> = {
 /**
  * An effect defines how to project a value from source to target.
  */
-// todo: Solve this `any`
-export type Effect<TSource, TValue> = (target: any, ctx: IEffectContext<TSource, TValue>) => MaybePromise<void>;
+// todo: Solve ITargetExecutionStrategy<any, any>. How to obtain TTarget and TLocation?
+export type Effect<TSource, TValue> = (strategy: ITargetExecutionStrategy<any, any>, ctx: IEffectContext<TSource, TValue>) => MaybePromise<void>;
 
 /**
  * The context for an effect. It contains information about changes.
@@ -58,8 +58,9 @@ export type ArrayEffectOptions = {
  * Strategy defines actual execution methods for projecting values to target.
  */
 export interface ITargetExecutionStrategy<TTarget, TLocation = any> {
-    execute<T extends any>(target: TTarget, location: TLocation, value: T): MaybePromise<void>;
-    executeArray<T extends any>(target: TTarget, location: TLocation, rows: T[], options: ArrayEffectOptions): MaybePromise<void>;
+    // new(target: TTarget): ITargetExecutionStrategy<TTarget, TLocation>;
+    execute<T extends any>(location: TLocation, value: T): MaybePromise<void>;
+    executeArray<T extends any>(location: TLocation, rows: T[], options: ArrayEffectOptions): MaybePromise<void>;
 }
 
 export interface IProjector<TSource> {
@@ -69,8 +70,8 @@ export interface IProjector<TSource> {
 export interface IScheduler<TTarget> {
     enqueue(effect: IScheduleItem): void;
     flush(): MaybePromise<void>;
-    withTarget(target: TTarget): IScheduler<TTarget>;
-    withTarget(target: Func<TTarget>): IScheduler<TTarget>;
+    withStrategy(target: ITargetExecutionStrategy<TTarget, unknown>): IScheduler<TTarget>;
+    withStrategy(target: Func<ITargetExecutionStrategy<TTarget, unknown>>): IScheduler<TTarget>;
 }
 
 export interface IScheduleItem<TSource, TValue> {

@@ -11,20 +11,14 @@ const _noopEffect: Effect<any, any> = (ctx) => { };
  */
 export class EffectFactory<TSource extends object, TLocation = any> {
     /**
-     * @param _strategy The strategy responsible for executing effects on a target object. It interprets the provided location descriptor and applies the resolved effect to that location on the target.
-     */
-    constructor(protected _strategy: ITargetExecutionStrategy<any, TLocation>) {
-    }
-
-    /**
      * Create an effect bound to a specific location on the target. Source value should be primitive type.
      * @param location Identifies the location on the effect target where this effect will be executed.
      * @returns
      */
     public at<T>(location: TLocation): Effect<TSource, T> {
-        return (target: any, ctx: IEffectContext<TSource, T>) => {
+        return (strategy: ITargetExecutionStrategy<any, TLocation>, ctx: IEffectContext<TSource, T>) => {
             const value = _resolveValue(ctx);
-            return this._strategy.execute(target, location, value);
+            return strategy.execute(location, value);
         };
     }
 
@@ -35,10 +29,10 @@ export class EffectFactory<TSource extends object, TLocation = any> {
      * @returns
      */
     public atWith<T, R>(location: TLocation, mapper: Func1<T, R>): Effect<TSource, R> {
-        const effect = (target: any, ctx: IEffectContext<TSource, T>) => {
+        const effect = (strategy: ITargetExecutionStrategy<any, TLocation>, ctx: IEffectContext<TSource, T>) => {
             const value = _resolveValue(ctx);
             const mapped = mapper(value);
-            return this._strategy.execute(target, location, mapped);
+            return strategy.execute(location, mapped);
         };
         // todo: Solve this `unknown`
         return effect as unknown as Effect<TSource, R>;
@@ -50,7 +44,7 @@ export class EffectFactory<TSource extends object, TLocation = any> {
      * @returns
      */
     public arrayAt<T, U = UnwrapArray<T>>(location: TLocation, options?: Partial<ArrayEffectOptions>): Effect<TSource, T> {
-        return (target: any, ctx: IEffectContext<TSource, T>) => {
+        return (strategy: ITargetExecutionStrategy<any, TLocation>, ctx: IEffectContext<TSource, T>) => {
             const rows = ctx.path ? get(ctx.source, ctx.path) as U[] : ctx.value as U[];
             // Only calls when `rows` is definitely an array and has data.
             if (rows && Array.isArray(rows) && rows.length > 0) {
@@ -60,7 +54,7 @@ export class EffectFactory<TSource extends object, TLocation = any> {
                     ...options,
                 };
 
-                return this._strategy.executeArray(target, location, rows, resolvedOptions);
+                return strategy.executeArray(location, rows, resolvedOptions);
             }
         };
     }
@@ -72,7 +66,7 @@ export class EffectFactory<TSource extends object, TLocation = any> {
      * @returns
      */
     public arrayAtWith<T, U = UnwrapArray<T>, R = any>(location: TLocation, mapper: Func1<U, R>, options?: Partial<ArrayEffectOptions>): Effect<TSource, T> {
-        return (target: any, ctx: IEffectContext<TSource, T>) => {
+        return (strategy: ITargetExecutionStrategy<any, TLocation>, ctx: IEffectContext<TSource, T>) => {
             const rows = ctx.path ? get(ctx.source, ctx.path) as U[] : ctx.value as U[];
             // Only calls when `rows` is definitely an array and has data.
             if (rows && Array.isArray(rows) && rows.length > 0) {
@@ -83,7 +77,7 @@ export class EffectFactory<TSource extends object, TLocation = any> {
                     ...options,
                 };
 
-                return this._strategy.executeArray(target, location, mapped, resolvedOptions);
+                return strategy.executeArray(location, mapped, resolvedOptions);
             }
         };
     }
@@ -95,7 +89,7 @@ export class EffectFactory<TSource extends object, TLocation = any> {
      * @experimental
      */
     public loop<T, U = T extends Array<infer K> ? K : never>(each: Func2<U, number, Effect<TSource, U>>): Effect<TSource, T> {
-        return async (target: any, ctx: IEffectContext<TSource, T>) => {
+        return async (strategy: ITargetExecutionStrategy<any, TLocation>, ctx: IEffectContext<TSource, T>) => {
             // todo: still thinking how to impl.
             const value = _resolveValue(ctx);
             if (Array.isArray(value)) {
@@ -103,7 +97,7 @@ export class EffectFactory<TSource extends object, TLocation = any> {
                 for (let i = 0; i < values.length; i++) {
                     const v = values[i];
                     const e = each(v, i);
-                    const r = e(target, {
+                    const r = e(strategy, {
                         // source: ctx.source,
                         // path: ctx.path,
                         value: v,
@@ -125,10 +119,10 @@ export class EffectFactory<TSource extends object, TLocation = any> {
      * @returns
      */
     public sourceWith<T>(location: TLocation, mapper: Func1<TSource, string>): Effect<TSource, T> {
-        return (target: any, ctx: IEffectContext<TSource, T>) => {
+        return (strategy: ITargetExecutionStrategy<any, TLocation>, ctx: IEffectContext<TSource, T>) => {
             // todo: Solve this `any`.
             const value = mapper(ctx.source as any);
-            return this._strategy.execute(target, location, value);
+            return strategy.execute(location, value);
         };
     }
 
@@ -139,8 +133,8 @@ export class EffectFactory<TSource extends object, TLocation = any> {
      * @returns
      */
     public raw<T>(location: TLocation, rawValue: T): Effect<TSource, T> {
-        return (target: any, ctx: IEffectContext<TSource, T>) => {
-            return this._strategy.execute(target, location, rawValue);
+        return (strategy: ITargetExecutionStrategy<any, TLocation>, ctx: IEffectContext<TSource, T>) => {
+            return strategy.execute(location, rawValue);
         };
     }
 
@@ -150,10 +144,10 @@ export class EffectFactory<TSource extends object, TLocation = any> {
      * @returns
      */
     public sequence<T>(effects: Effect<TSource, T>[]): Effect<TSource, T> {
-        return async (target: any, ctx: IEffectContext<TSource, T>) => {
+        return async (strategy: ITargetExecutionStrategy<any, TLocation>, ctx: IEffectContext<TSource, T>) => {
             const value = _resolveValue(ctx);
             for (const f of effects) {
-                await f(target, {
+                await f(strategy, {
                     // source: ctx.source,
                     // path: ctx.path,
                     value: value,
@@ -169,11 +163,11 @@ export class EffectFactory<TSource extends object, TLocation = any> {
      * @returns
      */
     public sequenceWith<T, R>(effects: Effect<TSource, R>[], mapper: Func1<T, R>): Effect<TSource, R> {
-        const effect = async (target: any, ctx: IEffectContext<TSource, T>) => {
+        const effect = async (strategy: ITargetExecutionStrategy<any, TLocation>, ctx: IEffectContext<TSource, T>) => {
             const raw = _resolveValue(ctx);
             const value = mapper(raw);
             for (const f of effects) {
-                await f(target, {
+                await f(strategy, {
                     // source: ctx.source,
                     // path: ctx.path,
                     value: value,
@@ -192,11 +186,11 @@ export class EffectFactory<TSource extends object, TLocation = any> {
      * @returns
      */
     public when<T>(condition: Predicate<T>, ifTrue: Effect<TSource, any>, ifFalse: Effect<TSource, any> = _noopEffect): Effect<TSource, T> {
-        return (target: any, ctx: IEffectContext<TSource, T>) => {
+        return (strategy: ITargetExecutionStrategy<any, TLocation>, ctx: IEffectContext<TSource, T>) => {
             const value = _resolveValue(ctx);
             const cond = condition(value);
             const effect = cond ? ifTrue : ifFalse;
-            return effect(target, {
+            return effect(strategy, {
                 // source: ctx.source,
                 // path: ctx.path,
                 value: value,
@@ -212,11 +206,11 @@ export class EffectFactory<TSource extends object, TLocation = any> {
      * @returns
      */
     public whenFromSource<T>(condition: Predicate<TSource>, ifTrue: Effect<TSource, any>, ifFalse: Effect<TSource, any> = _noopEffect): Effect<TSource, T> {
-        return (target: any, ctx: IEffectContext<TSource, T>) => {
+        return (strategy: ITargetExecutionStrategy<any, TLocation>, ctx: IEffectContext<TSource, T>) => {
             // todo: Solve this `any`.
             const cond = condition(ctx.source as any);
             const effect = cond ? ifTrue : ifFalse;
-            return effect(target, ctx);
+            return effect(strategy, ctx);
         };
     }
 
