@@ -6,14 +6,19 @@ const _noopEffect: Effect<any, any> = (ctx) => { };
 
 /**
  * Build effects for a target.
+ * @template TSource The type of the source object.
+ * @template TLocation The type used to describe a location within an effect target. This is interpreted by the execution strategy and may represent a bookmark, anchor, or address.
  */
-export class EffectFactory<TTarget, TSource extends object, TLocation = any> {
-    constructor(protected _strategy: ITargetExecutionStrategy<TTarget, TLocation>) {
+export class EffectFactory<TSource extends object, TLocation = any> {
+    /**
+     * @param _strategy The strategy responsible for executing effects on a target object. It interprets the provided location descriptor and applies the resolved effect to that location on the target.
+     */
+    constructor(protected _strategy: ITargetExecutionStrategy<any, TLocation>) {
     }
 
     /**
-     * Create an effect that will be applied at the specified location.
-     * @param location The location in `TTarget` where the effect is executed.
+     * Create an effect bound to a specific location on the target. Source value should be primitive type.
+     * @param location Identifies the location on the effect target where this effect will be executed.
      * @returns
      */
     public at<T>(location: TLocation): Effect<TSource, T> {
@@ -24,8 +29,8 @@ export class EffectFactory<TTarget, TSource extends object, TLocation = any> {
     }
 
     /**
-     * Create an effect that will be applied at the specified location. Use `mapper` to transform the value.
-     * @param location The location in `TTarget` where the effect is executed.
+     * Create an effect bound to a specific location on the target. When it executs, source value will be transformed with `mapper`. Source value should be primitive type.
+     * @param location Identifies the location on the effect target where this effect will be executed.
      * @param mapper Function to transform the value.
      * @returns
      */
@@ -40,8 +45,8 @@ export class EffectFactory<TTarget, TSource extends object, TLocation = any> {
     }
 
     /**
-     * Create an effect that will be applied at the specified location for array data.
-     * @param location The location in `TTarget` where the effect is executed.
+     * Create an effect bound to a specific location on the target. Source value should be an array.
+     * @param location Identifies the location on the effect target where this effect will be executed.
      * @returns
      */
     public arrayAt<T, U = UnwrapArray<T>>(location: TLocation, options?: Partial<ArrayEffectOptions>): Effect<TSource, T> {
@@ -61,8 +66,8 @@ export class EffectFactory<TTarget, TSource extends object, TLocation = any> {
     }
 
     /**
-     * Create an effect that will be applied at the specified location for array data.
-     * @param location The location in `TTarget` where the effect is executed.
+     * Create an effect bound to a specific location on the target. When it executs, source value will be transformed with `mapper`. Source value should be an array.
+     * @param location Identifies the location on the effect target where this effect will be executed.
      * @param mapper Function to transform the element of the array.
      * @returns
      */
@@ -114,8 +119,8 @@ export class EffectFactory<TTarget, TSource extends object, TLocation = any> {
     }
 
     /**
-     * Create an effect that will be applied at the specified location for `TSource` object. Use `mapper` to transform the `TSource` object.
-     * @param location The location in `TTarget` where the effect is executed.
+     * Create an effect bound to a specific location on the target for `TSource` object. When it executs, `TSource` object will be transformed with `mapper`.
+     * @param location Identifies the location on the effect target where this effect will be executed.
      * @param mapper Function to transform the `TSource` object.
      * @returns
      */
@@ -128,8 +133,8 @@ export class EffectFactory<TTarget, TSource extends object, TLocation = any> {
     }
 
     /**
-     * Create an effect that will be applied at the specified location for raw value. This effect will not read from `TSource` object.
-     * @param location The location in `TTarget` where the effect is executed.
+     * Create an effect bound to a specific location on the target for raw value. This effect will not read from `TSource` object.
+     * @param location Identifies the location on the effect target where this effect will be executed.
      * @param rawValue The value to use.
      * @returns
      */
@@ -158,7 +163,7 @@ export class EffectFactory<TTarget, TSource extends object, TLocation = any> {
     }
 
     /**
-     * Call multiple effects in sequence. Use `mapper` to transform the value.
+     * Call multiple effects in sequence. When it executs, source value will be transformed with `mapper` first, then pass to `effects`.
      * @param effects Effects to call.
      * @param mapper Function to transform the value.
      * @returns
