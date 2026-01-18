@@ -8,7 +8,7 @@ import { Recorder } from "./recorder";
  */
 export function track<TSource extends object>(initial: TSource): [TSource, Recorder<TSource>] {
     const recorder = new Recorder(initial);
-    const tracked = onChange(initial, recorder.receive.bind(recorder), { pathAsArray: true });
+    const tracked = onChange(initial, (path, value) => recorder.receive(path, value), { pathAsArray: true });
     return [tracked, recorder];
 }
 

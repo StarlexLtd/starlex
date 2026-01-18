@@ -1,6 +1,6 @@
 import type { IProjector, Patch } from "../types";
 
-import { set } from "lodash-es";
+import { cloneDeep, set } from "lodash-es";
 import { withEvents } from "@cyysummer/core";
 
 type RecorderEvents = {
@@ -18,7 +18,7 @@ export class Recorder<TSource extends object> extends withEvents<RecorderEvents>
 
     constructor(initial: TSource) {
         super();
-        this._shadow = structuredClone(initial);
+        this._shadow = cloneDeep(initial);
     }
 
     /**
