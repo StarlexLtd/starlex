@@ -58,9 +58,9 @@ export type ArrayEffectOptions = {
  * Strategy defines actual execution methods for projecting values to target.
  */
 export interface ITargetExecutionStrategy<TTarget, TLocation = any> {
-    // new(target: TTarget): ITargetExecutionStrategy<TTarget, TLocation>;
     execute<T extends any>(location: TLocation, value: T): MaybePromise<void>;
     executeArray<T extends any>(location: TLocation, rows: T[], options: ArrayEffectOptions): MaybePromise<void>;
+    reset(): void;
 }
 
 export interface IProjector<TSource> {
