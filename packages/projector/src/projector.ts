@@ -1,9 +1,7 @@
 import type { Effect, IProjector, IScheduler, Patch, Schema } from "../types";
 
 export abstract class ProjectorBase<TSource> implements IProjector<TSource> {
-    protected _scheduler?: IScheduler<any>;
-
-    constructor(protected _schema: Schema<TSource>) {
+    constructor(protected _schema: Schema<TSource>, protected _scheduler?: IScheduler<any>) {
         if (!_schema) {
             throw new Error("Projector: Schema is required.");
         }
@@ -52,17 +50,16 @@ export abstract class ProjectorBase<TSource> implements IProjector<TSource> {
 
 export class Projector<TSource> extends ProjectorBase<TSource> {
     constructor(_schema: Schema<TSource>, _scheduler: IScheduler<any>) {
-        super(_schema);
-        this._scheduler = _scheduler;
+        super(_schema, _scheduler);
     }
 }
 
 export class DynamicProjector<TSource> extends ProjectorBase<TSource> {
     private _schedulerFactory?: Func<IScheduler<any>>;
 
-    public scheduleWith(scheduler: IScheduler<any>): IProjector<TSource>;
-    public scheduleWith(schedulerFactory: Func<IScheduler<any>>): IProjector<TSource>;
-    public scheduleWith(arg: IScheduler<any> | Func<IScheduler<any>>): IProjector<TSource> {
+    public withScheduler(scheduler: IScheduler<any>): IProjector<TSource>;
+    public withScheduler(factory: Func<IScheduler<any>>): IProjector<TSource>;
+    public withScheduler(arg: IScheduler<any> | Func<IScheduler<any>>): IProjector<TSource> {
         if (typeof arg === "function") {
             this._schedulerFactory = arg;
         } else {

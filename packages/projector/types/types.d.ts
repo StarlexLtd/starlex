@@ -57,7 +57,7 @@ export type ArrayEffectOptions = {
 /**
  * Strategy defines actual execution methods for projecting values to target.
  */
-export interface ITargetExecutionStrategy<TTarget, TLocation = any> {
+export interface ITargetExecutionStrategy<TTarget, TLocation> {
     execute<T extends any>(location: TLocation, value: T): MaybePromise<void>;
     executeArray<T extends any>(location: TLocation, rows: T[], options: ArrayEffectOptions): MaybePromise<void>;
     reset(): void;
@@ -70,8 +70,8 @@ export interface IProjector<TSource> {
 export interface IScheduler<TTarget> {
     enqueue(effect: IScheduleItem): void;
     flush(): MaybePromise<void>;
-    withStrategy(target: ITargetExecutionStrategy<TTarget, unknown>): IScheduler<TTarget>;
-    withStrategy(target: Func<ITargetExecutionStrategy<TTarget, unknown>>): IScheduler<TTarget>;
+    withStrategy(strategy: ITargetExecutionStrategy<TTarget, any>): IScheduler<TTarget>;
+    withStrategy(factory: Func<ITargetExecutionStrategy<TTarget, any>>): IScheduler<TTarget>;
 }
 
 export interface IScheduleItem<TSource, TValue> {

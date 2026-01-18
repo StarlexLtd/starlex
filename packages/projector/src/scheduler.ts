@@ -25,12 +25,12 @@ export abstract class Scheduler<TTarget> implements IScheduler<TTarget> {
     }
 
     public withStrategy(strategy: ITargetExecutionStrategy<TTarget, any>): IScheduler<TTarget>;
-    public withStrategy(strategy: Func<ITargetExecutionStrategy<TTarget, any>>): IScheduler<TTarget>;
-    public withStrategy(strategy: ITargetExecutionStrategy<TTarget, any> | Func<ITargetExecutionStrategy<TTarget, any>>): IScheduler<TTarget> {
-        if (typeof strategy === "function") {
-            this._strategyFactory = strategy as any;
+    public withStrategy(factory: Func<ITargetExecutionStrategy<TTarget, any>>): IScheduler<TTarget>;
+    public withStrategy(arg: ITargetExecutionStrategy<TTarget, any> | Func<ITargetExecutionStrategy<TTarget, any>>): IScheduler<TTarget> {
+        if (typeof arg === "function") {
+            this._strategyFactory = arg as any;
         } else {
-            this._strategy = strategy;
+            this._strategy = arg;
         }
         return this;
     }
@@ -40,7 +40,7 @@ export abstract class Scheduler<TTarget> implements IScheduler<TTarget> {
             && (this._strategy = this._strategyFactory());
 
         if (!this._strategy) {
-            throw new Error("Scheduler: target is not set");
+            throw new Error("Scheduler: no strategy.");
         }
     }
 
@@ -60,7 +60,7 @@ export abstract class Scheduler<TTarget> implements IScheduler<TTarget> {
 /**
  * A scheduler that **delays and batches** effect executions using debounce.
  *
- * Effects are collected in a queue and only executed after the specified `timeout`
+ * Effects are collected in a queue and only executed after the specified `wait`
  * has passed without any new effects being enqueued. This helps reduce redundant
  * executions (e.g. during rapid successive state updates) and is especially useful
  * when projecting to expensive targets like UI rendering, DOM updates, or network requests.
@@ -70,7 +70,7 @@ export abstract class Scheduler<TTarget> implements IScheduler<TTarget> {
  * effects in batch.
  */
 export class LazyScheduler<TTarget> extends Scheduler<TTarget> {
-    constructor(strategy?: ITargetExecutionStrategy<TTarget, any>, protected timeout: number = 500) {
+    constructor(strategy?: ITargetExecutionStrategy<TTarget, any>, protected wait: number = 500) {
         super(strategy);
     }
 
@@ -81,7 +81,7 @@ export class LazyScheduler<TTarget> extends Scheduler<TTarget> {
         this._queue.clear();
 
         this.run(q);
-    }, this.timeout);
+    }, this.wait);
 }
 
 /**
