@@ -2,20 +2,26 @@ import type { IScheduler, ITargetExecutionStrategy, Schema } from "../types";
 
 import onChange from "on-change";
 import { DynamicProjector, Projector } from "./projector";
-import { Recorder } from "./recorder";
+import { LazyRecorder, Recorder, RecorderBase } from "./recorder";
 import { LazyScheduler, TotalScheduler } from "./scheduler";
 import { debounce } from "lodash-es";
 
 export class Builder<TSource extends object, TTarget, TLocation> {
-    private _flushWait: number = 0;
-    private _onFlush?: Action;
-    private _recorder?: Recorder<TSource>;
+    private _flushCallback?: Action;
+    private _recorder?: RecorderBase<TSource>;
     private _scheduler?: IScheduler<TTarget>;
     private _strategy?: ITargetExecutionStrategy<TTarget, TLocation>;
     private _strategyFactory?: Func<ITargetExecutionStrategy<TTarget, TLocation>>;
     private _tracked?: TSource;
 
-    constructor(private _initial: TSource, private _schema: Schema<TSource>) {
+    constructor(private _initial: TSource, private _schema: Schema<TSource>, private _waitTime: number = 500) {
+        if (!_initial || !_schema || !_waitTime) {
+            throw new Error("Builder: all params are required.");
+        }
+
+        if (Number(_waitTime) < 0) {
+            throw new Error("Builder: wait time must be >= 0.");
+        }
     }
 
     public buildDynamic() {
@@ -35,28 +41,28 @@ export class Builder<TSource extends object, TTarget, TLocation> {
     }
 
     public buildStatic() {
-        if (!this._scheduler) {
-            throw new Error("Builder: no scheduler was provided. Call `withLazyScheduler()` or `withTotalScheduler()` to provide.");
-        }
-
         if (!this._strategy && !this._strategyFactory) {
             throw new Error("Builder: no strategy was provided. Call `withStrategy()` to provide.");
         }
 
-        if (!this._onFlush) {
-            throw new Error("Builder: no flush handler was provided. Call `onFlush()` to provide.");
+        if (!this._scheduler) {
+            this._scheduler = new LazyScheduler();
+        }
+
+        if (!this._flushCallback) {
+            log.warn("Builder: no flush callback was provided.");
         }
 
         const flush = async () => {
             await this._scheduler!.flush();
-            this._onFlush!();
+            this._flushCallback?.();
         }
 
         this.track();
         this._scheduler.withStrategy((this._strategy ?? this._strategyFactory) as any);
         const projector = new Projector(this._schema, this._scheduler);
         this._recorder!.sendTo(projector);
-        this._recorder!.on("record", this._flushWait ? debounce(flush, this._flushWait) : flush);
+        this._recorder!.on("record", this._waitTime ? debounce(flush, this._waitTime) : flush);
 
         return {
             tracked: this._tracked!,
@@ -65,9 +71,13 @@ export class Builder<TSource extends object, TTarget, TLocation> {
         };
     }
 
-    public onFlush(callback: Action, wait: number = 500): Builder<TSource, TTarget, TLocation> {
-        this._onFlush = callback;
-        this._flushWait = wait;
+    /**
+     * Provide a callback to execute after scheduler flushed.
+     * @param callback
+     * @returns
+     */
+    public onFlush(callback: Action): Builder<TSource, TTarget, TLocation> {
+        this._flushCallback = callback;
         return this;
     }
 
@@ -97,7 +107,7 @@ export class Builder<TSource extends object, TTarget, TLocation> {
         // Build only once.
         if (this._recorder && this._tracked) return;
 
-        this._recorder = new Recorder(this._initial);
+        this._recorder = this._waitTime > 0 ? new LazyRecorder(this._initial, this._waitTime) :  new Recorder(this._initial);
         this._tracked = onChange(
             this._initial,
             (path, value) => this._recorder!.receive(path, value),

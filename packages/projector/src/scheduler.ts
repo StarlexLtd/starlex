@@ -9,7 +9,10 @@ export abstract class Scheduler<TTarget> implements IScheduler<TTarget> {
     protected readonly _queue = new Map<string, IScheduleItem<any, any>>();
     protected _strategyFactory?: Func<ITargetExecutionStrategy<TTarget, any>>;
 
-    constructor(protected _strategy?: ITargetExecutionStrategy<TTarget, any>) {
+    constructor(strategy?: ITargetExecutionStrategy<TTarget, any>) {
+        if (strategy) {
+            this._strategyFactory = () => strategy;
+        }
     }
 
     public enqueue(item: IScheduleItem<any, any>): IScheduler<TTarget> {
@@ -19,29 +22,28 @@ export abstract class Scheduler<TTarget> implements IScheduler<TTarget> {
     }
 
     public flush(): MaybePromise<void> {
-        this.checkStrategy();
         log.trace("Scheduler.flush()", [...this._queue.keys()]);
         return this.flushCore();
+    }
+
+    public reset(): void {
+        this._queue.clear();
     }
 
     public withStrategy(strategy: ITargetExecutionStrategy<TTarget, any>): IScheduler<TTarget>;
     public withStrategy(factory: Func<ITargetExecutionStrategy<TTarget, any>>): IScheduler<TTarget>;
     public withStrategy(arg: ITargetExecutionStrategy<TTarget, any> | Func<ITargetExecutionStrategy<TTarget, any>>): IScheduler<TTarget> {
-        if (typeof arg === "function") {
-            this._strategyFactory = arg as any;
-        } else {
-            this._strategy = arg;
-        }
+        this._strategyFactory = typeof arg === "function" ? arg : () => arg;
         return this;
     }
 
-    protected checkStrategy() {
-        (!this._strategy && this._strategyFactory)
-            && (this._strategy = this._strategyFactory());
-
-        if (!this._strategy) {
+    protected ensureStrategy() {
+        const strategy = this._strategyFactory?.();
+        if (!strategy) {
             throw new Error("Scheduler: no strategy.");
         }
+
+        return strategy;
     }
 
     protected abstract flushCore(): MaybePromise<void>;
@@ -49,7 +51,7 @@ export abstract class Scheduler<TTarget> implements IScheduler<TTarget> {
     protected async run(list: IScheduleItem<any, any>[]): Promise<void> {
         for (const item of list) {
             const { effect, ctx } = item;
-            const result = effect(this._strategy!, ctx);
+            const result = effect(this.ensureStrategy(), ctx);
             if (result instanceof Promise) {
                 await result;
             }
@@ -89,7 +91,7 @@ export class LazyScheduler<TTarget> extends Scheduler<TTarget> {
  */
 export class TotalScheduler<TTarget> extends Scheduler<TTarget> {
     protected override async flushCore(): Promise<void> {
-        this._strategy!.reset();
+        this.ensureStrategy().reset();
         this.run([...this._queue.values()]);
     }
 }

@@ -61,6 +61,7 @@ export interface ITargetExecutionStrategy<TTarget, TLocation> {
     execute<T extends any>(location: TLocation, value: T): MaybePromise<void>;
     executeArray<T extends any>(location: TLocation, rows: T[], options: ArrayEffectOptions): MaybePromise<void>;
     reset(): void;
+    get target(): TTarget;
 }
 
 export interface IProjector<TSource> {
@@ -70,6 +71,7 @@ export interface IProjector<TSource> {
 export interface IScheduler<TTarget> {
     enqueue(effect: IScheduleItem): void;
     flush(): MaybePromise<void>;
+    reset(): void;
     withStrategy(strategy: ITargetExecutionStrategy<TTarget, any>): IScheduler<TTarget>;
     withStrategy(factory: Func<ITargetExecutionStrategy<TTarget, any>>): IScheduler<TTarget>;
 }
