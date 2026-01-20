@@ -54,6 +54,19 @@ export type ArrayEffectOptions = {
     resolveHeader: (key: string | symbol, index?: number) => string;
 }
 
+
+export type RecorderEvents = {
+    record: { next: any; patches: Patch[]; };
+};
+
+export interface IRecorder<TSource extends object> extends IEventful<RecorderEvents> {
+    pause(): void;
+    receive(path: any[], value: any): void;
+    resume(): void;
+    sendTo(projector: IProjector<TSource>): void;
+    sendTo(factory: Func<IProjector<TSource>>): void;
+}
+
 /**
  * Strategy defines actual execution methods for projecting values to target.
  */

@@ -1,16 +1,16 @@
-import type { IScheduler, ITargetExecutionStrategy, Schema } from "../types";
+import type { IRecorder, IScheduler, ITargetExecutionStrategy, Schema } from "../types";
 
 import onChange from "on-change";
 import { DynamicProjector, Projector } from "./projector";
-import { LazyRecorder, Recorder, RecorderBase } from "./recorder";
+import { LazyRecorder, Recorder } from "./recorder";
 import { LazyScheduler, TotalScheduler } from "./scheduler";
 import { debounce } from "lodash-es";
+import { track } from "./utils";
 
 export class Builder<TSource extends object, TTarget, TLocation> {
     private _flushCallback?: Action;
-    private _recorder?: RecorderBase<TSource>;
+    private _recorder?: IRecorder<TSource>;
     private _scheduler?: IScheduler<TTarget>;
-    private _strategy?: ITargetExecutionStrategy<TTarget, TLocation>;
     private _strategyFactory?: Func<ITargetExecutionStrategy<TTarget, TLocation>>;
     private _tracked?: TSource;
 
@@ -40,8 +40,8 @@ export class Builder<TSource extends object, TTarget, TLocation> {
         };
     }
 
-    public buildStatic() {
-        if (!this._strategy && !this._strategyFactory) {
+    public build() {
+        if (!this._strategyFactory) {
             throw new Error("Builder: no strategy was provided. Call `withStrategy()` to provide.");
         }
 
@@ -59,7 +59,7 @@ export class Builder<TSource extends object, TTarget, TLocation> {
         }
 
         this.track();
-        this._scheduler.withStrategy((this._strategy ?? this._strategyFactory) as any);
+        this._scheduler.withStrategy(this._strategyFactory);
         const projector = new Projector(this._schema, this._scheduler);
         this._recorder!.sendTo(projector);
         this._recorder!.on("record", this._waitTime ? debounce(flush, this._waitTime) : flush);
@@ -81,8 +81,8 @@ export class Builder<TSource extends object, TTarget, TLocation> {
         return this;
     }
 
-    public withLazyScheduler(wait: number = 500): Builder<TSource, TTarget, TLocation> {
-        this._scheduler = new LazyScheduler(undefined, wait);
+    public withLazyScheduler(): Builder<TSource, TTarget, TLocation> {
+        this._scheduler = new LazyScheduler(undefined, this._waitTime);
         return this;
     }
 
@@ -94,26 +94,14 @@ export class Builder<TSource extends object, TTarget, TLocation> {
     public withStrategy(strategy: ITargetExecutionStrategy<TTarget, TLocation>): Builder<TSource, TTarget, TLocation>;
     public withStrategy(factory: Func<ITargetExecutionStrategy<TTarget, TLocation>>): Builder<TSource, TTarget, TLocation>;
     public withStrategy(arg: ITargetExecutionStrategy<TTarget, TLocation> | Func<ITargetExecutionStrategy<TTarget, TLocation>>): Builder<TSource, TTarget, TLocation> {
-        if (typeof arg === "function") {
-            this._strategyFactory = arg as any;
-        } else {
-            this._strategy = arg;
-        }
-
+        this._strategyFactory = typeof arg === "function" ? arg : () => arg;
         return this;
     }
 
     private track() {
         // Build only once.
         if (this._recorder && this._tracked) return;
-
-        this._recorder = this._waitTime > 0 ? new LazyRecorder(this._initial, this._waitTime) :  new Recorder(this._initial);
-        this._tracked = onChange(
-            this._initial,
-            (path, value) => this._recorder!.receive(path, value),
-            {
-                pathAsArray: true,
-            });
+        [this._tracked, this._recorder] = track(this._initial, this._waitTime);
     }
 
 }

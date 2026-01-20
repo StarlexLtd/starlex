@@ -1,16 +1,12 @@
-import type { IProjector, Patch } from "../types";
+import type { IProjector, IRecorder, Patch, RecorderEvents } from "../types";
 
 import { cloneDeep, debounce, set } from "lodash-es";
 import { withEvents } from "@cyysummer/core";
 
-type RecorderEvents = {
-    record: { next: any; patches: Patch[]; };
-};
-
 /**
  * Record changes to an object.
  */
-export abstract class RecorderBase<TSource extends object> extends withEvents<RecorderEvents>() {
+export abstract class RecorderBase<TSource extends object> extends withEvents<RecorderEvents>() implements IRecorder<TSource> {
     protected _paused = false;
     protected _projectorFactory?: Func<IProjector<TSource>>;
     protected _shadow: TSource;
@@ -66,7 +62,7 @@ export class Recorder<TSource extends object> extends RecorderBase<TSource> {
         set(this._shadow, path, value);
         const patches: Patch[] = [{ path, value }];
 
-        // Projection is lazy, only project when there is a projector.
+        // project changes.
         this._projectorFactory?.()?.project(this._shadow, ...patches);
 
         // todo: make sure `next` is sync-ed with `initial` changes.
@@ -91,6 +87,7 @@ export class LazyRecorder<TSource extends object> extends RecorderBase<TSource> 
     public override receive(path: any[], value: any) {
         if (this._paused) return;
 
+        // join path to single string. keep latest value for same path.
         this._buffer.set(path.join("."), { path, value, });
         this.receiveCore();
     }
@@ -105,7 +102,7 @@ export class LazyRecorder<TSource extends object> extends RecorderBase<TSource> 
             set(this._shadow, item.path, item.value);
         }
 
-        // Projection is lazy, only project when there is a projector.
+        // project changes.
         this._projectorFactory?.()?.project(this._shadow, ...patches);
 
         this.emit("record", { next: this._shadow, patches });
