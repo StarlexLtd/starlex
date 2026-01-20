@@ -5,7 +5,7 @@ import { debounce } from "lodash-es";
 /**
  * Scheduler abstract class, used to schedule projector effects.
  */
-export abstract class Scheduler<TTarget> implements IScheduler<TTarget> {
+export abstract class SchedulerBase<TTarget> implements IScheduler<TTarget> {
     protected readonly _queue = new Map<string, IScheduleItem<any, any>>();
     protected _strategyFactory?: Func<ITargetExecutionStrategy<TTarget, any>>;
 
@@ -60,6 +60,17 @@ export abstract class Scheduler<TTarget> implements IScheduler<TTarget> {
 }
 
 /**
+ * Run all queued effects at once.
+ */
+export class Scheduler<TTarget> extends SchedulerBase<TTarget> {
+    protected override async flushCore(): Promise<void> {
+        const q = [...this._queue.values()];
+        this._queue.clear();
+        this.run(q);
+    }
+}
+
+/**
  * A scheduler that **delays and batches** effect executions using debounce.
  *
  * Effects are collected in a queue and only executed after the specified `wait`
@@ -71,7 +82,7 @@ export abstract class Scheduler<TTarget> implements IScheduler<TTarget> {
  * `LazyScheduler` is more conservative: it waits for a quiet period before flushing the accumulated
  * effects in batch.
  */
-export class LazyScheduler<TTarget> extends Scheduler<TTarget> {
+export class LazyScheduler<TTarget> extends SchedulerBase<TTarget> {
     constructor(strategy?: ITargetExecutionStrategy<TTarget, any>, protected wait: number = 500) {
         super(strategy);
     }
@@ -87,9 +98,9 @@ export class LazyScheduler<TTarget> extends Scheduler<TTarget> {
 }
 
 /**
- * Run all queued effects at once. The queue will NOT be cleared. The strategy will `reset()` before running any effects.
+ * Run all queued effects at once. The queue will NOT be cleared. The strategy will `reset()` before running any effects, in order to make sure strategy is in initial state.
  */
-export class TotalScheduler<TTarget> extends Scheduler<TTarget> {
+export class TotalScheduler<TTarget> extends SchedulerBase<TTarget> {
     protected override async flushCore(): Promise<void> {
         this.ensureStrategy().reset();
         this.run([...this._queue.values()]);

@@ -1,30 +1,36 @@
 import type { IRecorder, IScheduler, ITargetExecutionStrategy, Schema } from "../types";
 
-import onChange from "on-change";
 import { DynamicProjector, Projector } from "./projector";
-import { LazyRecorder, Recorder } from "./recorder";
-import { LazyScheduler, TotalScheduler } from "./scheduler";
+import { LazyScheduler, Scheduler, TotalScheduler } from "./scheduler";
 import { debounce } from "lodash-es";
 import { track } from "./utils";
 
+/**
+ * Builder pattern for projector.
+ * @template TSource Source object structure.
+ * @template TTarget Projection target.
+ * @template TLocation A descriptor of location in `TTarget` where projection effects are executed.
+ */
 export class Builder<TSource extends object, TTarget, TLocation> {
     private _flushCallback?: Action;
     private _recorder?: IRecorder<TSource>;
+    private _schema?: Schema<TSource>;
     private _scheduler?: IScheduler<TTarget>;
     private _strategyFactory?: Func<ITargetExecutionStrategy<TTarget, TLocation>>;
     private _tracked?: TSource;
+    private _waitTime: number = 500;
 
-    constructor(private _initial: TSource, private _schema: Schema<TSource>, private _waitTime: number = 500) {
-        if (!_initial || !_schema || !_waitTime) {
-            throw new Error("Builder: all params are required.");
-        }
-
-        if (Number(_waitTime) < 0) {
-            throw new Error("Builder: wait time must be >= 0.");
+    constructor(private _initial: TSource) {
+        if (!_initial) {
+            throw new Error("Builder: initial object is required.");
         }
     }
 
     public buildDynamic() {
+        if (!this._schema) {
+            throw new Error("Builder: no schema. Call `loadSchema()` before build.");
+        }
+
         this.track();
         const projector = new DynamicProjector(this._schema);
         if (this._scheduler) {
@@ -41,17 +47,23 @@ export class Builder<TSource extends object, TTarget, TLocation> {
     }
 
     public build() {
+        if (!this._schema) {
+            throw new Error("Builder: no schema. Call `loadSchema()` before build.");
+        }
+
         if (!this._strategyFactory) {
-            throw new Error("Builder: no strategy was provided. Call `withStrategy()` to provide.");
+            throw new Error("Builder: no strategy. Call `withStrategy()` before build.");
         }
 
         if (!this._scheduler) {
             this._scheduler = new LazyScheduler();
         }
 
+        /*
         if (!this._flushCallback) {
             log.warn("Builder: no flush callback was provided.");
         }
+        */
 
         const flush = async () => {
             await this._scheduler!.flush();
@@ -72,6 +84,25 @@ export class Builder<TSource extends object, TTarget, TLocation> {
     }
 
     /**
+     * Use debounced Recorder/Scheduler.
+     * @param wait Debounce time in milliseconds. Default: 500.
+     * @returns
+     */
+    public lazy(wait: number = 500): Builder<TSource, TTarget, TLocation> {
+        if (Number(wait) < 0) {
+            throw new Error("Builder: wait time must be >= 0.");
+        }
+
+        this._waitTime = wait;
+        return this;
+    }
+
+    public loadSchema(schema: Schema<TSource>): Builder<TSource, TTarget, TLocation> {
+        this._schema = schema;
+        return this;
+    }
+
+    /**
      * Provide a callback to execute after scheduler flushed.
      * @param callback
      * @returns
@@ -83,6 +114,11 @@ export class Builder<TSource extends object, TTarget, TLocation> {
 
     public withLazyScheduler(): Builder<TSource, TTarget, TLocation> {
         this._scheduler = new LazyScheduler(undefined, this._waitTime);
+        return this;
+    }
+
+    public withScheduler(): Builder<TSource, TTarget, TLocation> {
+        this._scheduler = new Scheduler(undefined);
         return this;
     }
 
