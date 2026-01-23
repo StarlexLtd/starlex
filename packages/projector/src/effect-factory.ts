@@ -29,9 +29,9 @@ export class EffectFactory<TSource extends object, TLocation = any> {
      * @returns
      */
     public atWith<T, R>(location: TLocation, mapper: Func1<T, R>): Effect<TSource, R> {
-        const effect = (strategy: ITargetExecutionStrategy<any, TLocation>, ctx: IEffectContext<TSource, T>) => {
+        const effect = async (strategy: ITargetExecutionStrategy<any, TLocation>, ctx: IEffectContext<TSource, T>) => {
             const value = _resolveValue(ctx);
-            const mapped = mapper(value);
+            const mapped = await mapper(value);
             return strategy.execute(location, mapped);
         };
         // todo: Solve this `unknown`
@@ -64,8 +64,7 @@ export class EffectFactory<TSource extends object, TLocation = any> {
     public arrayFrom<T, U extends any[]>(location: TLocation, mapper: Func1<T, U>, options?: Partial<ArrayEffectOptions>): Effect<TSource, U> {
         const effect = async (strategy: ITargetExecutionStrategy<any, TLocation>, ctx: IEffectContext<TSource, T>) => {
             const value = _resolveValue(ctx);
-            const p = mapper(value);
-            const rows = p instanceof Promise ? await p : p;
+            const rows = await mapper(value);
             const resolvedOptions = _resolveArrayOptions(rows, options);
             return strategy.executeArray(location, rows, resolvedOptions);
         };
@@ -105,14 +104,11 @@ export class EffectFactory<TSource extends object, TLocation = any> {
                 for (let i = 0; i < values.length; i++) {
                     const v = values[i];
                     const e = each(v, i);
-                    const r = e(strategy, {
+                    await e(strategy, {
                         // source: ctx.source,
                         // path: ctx.path,
                         value: v,
                     });
-                    if (r instanceof Promise) {
-                        await r;
-                    }
                 }
             } else {
                 throw new Error(`Effect: Value at path '${ctx.path}' is not an array.`);
@@ -127,9 +123,9 @@ export class EffectFactory<TSource extends object, TLocation = any> {
      * @returns
      */
     public sourceWith<T>(location: TLocation, mapper: Func1<TSource, string>): Effect<TSource, T> {
-        return (strategy: ITargetExecutionStrategy<any, TLocation>, ctx: IEffectContext<TSource, T>) => {
+        return async (strategy: ITargetExecutionStrategy<any, TLocation>, ctx: IEffectContext<TSource, T>) => {
             // todo: Solve this `any`.
-            const value = mapper(ctx.source as any);
+            const value = await mapper(ctx.source as any);
             return strategy.execute(location, value);
         };
     }
@@ -170,9 +166,9 @@ export class EffectFactory<TSource extends object, TLocation = any> {
      * @param effects Effects to call.
      * @returns
      */
-    public sequenceFromSource<R>(mapper: Func1<TSource, R>, ...effects: Effect<TSource, R>[]): Effect<TSource, R> {
+    public sequenceFromSource<R>(mapper: Func1<TSource, R>, ...effects: Effect<TSource, any>[]): Effect<TSource, R> {
         return async (strategy: ITargetExecutionStrategy<any, TLocation>, ctx: IEffectContext<TSource, R>) => {
-            const value = mapper(ctx.source!);
+            const value = await mapper(ctx.source!);
             for (const f of effects) {
                 await f(strategy, {
                     value,
@@ -190,7 +186,7 @@ export class EffectFactory<TSource extends object, TLocation = any> {
     public sequenceWith<T, R>(mapper: Func1<T, R>, ...effects: Effect<TSource, R>[]): Effect<TSource, R> {
         const effect = async (strategy: ITargetExecutionStrategy<any, TLocation>, ctx: IEffectContext<TSource, T>) => {
             const raw = _resolveValue(ctx);
-            const value = mapper(raw);
+            const value = await mapper(raw);
             for (const f of effects) {
                 await f(strategy, {
                     // source: ctx.source,
