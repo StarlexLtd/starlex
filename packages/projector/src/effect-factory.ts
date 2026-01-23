@@ -48,15 +48,28 @@ export class EffectFactory<TSource extends object, TLocation = any> {
             const rows = ctx.path ? get(ctx.source, ctx.path) as U[] : ctx.value as U[];
             // Only calls when `rows` is definitely an array and has data.
             if (rows && Array.isArray(rows) && rows.length > 0) {
-                const resolvedOptions = {
-                    keys: typeof rows[0] === "object" ? keys(rows[0]) as any[] : [],
-                    resolveHeader: (key: string | symbol, index?: number) => String(key),
-                    ...options,
-                };
-
+                const resolvedOptions = _resolveArrayOptions(rows, options);
                 return strategy.executeArray(location, rows, resolvedOptions);
             }
         };
+    }
+
+    /**
+     * Create an effect bound to a specific location on the target. Source value is converted to array using mapper.
+     * @param location Identifies the location on the effect target where this effect will be executed.
+     * @param mapper Function to transform the element of the array.
+     * @param options
+     * @returns
+     */
+    public arrayFrom<T, U extends any[]>(location: TLocation, mapper: Func1<T, U>, options?: Partial<ArrayEffectOptions>): Effect<TSource, U> {
+        const effect = async (strategy: ITargetExecutionStrategy<any, TLocation>, ctx: IEffectContext<TSource, T>) => {
+            const value = _resolveValue(ctx);
+            const p = mapper(value);
+            const rows = p instanceof Promise ? await p : p;
+            const resolvedOptions = _resolveArrayOptions(rows, options);
+            return strategy.executeArray(location, rows, resolvedOptions);
+        };
+        return effect as any;
     }
 
     /**
@@ -71,12 +84,7 @@ export class EffectFactory<TSource extends object, TLocation = any> {
             // Only calls when `rows` is definitely an array and has data.
             if (rows && Array.isArray(rows) && rows.length > 0) {
                 const mapped = rows.map(mapper);
-                const resolvedOptions = {
-                    keys: typeof rows[0] === "object" ? keys(rows[0]) as any[] : [],
-                    resolveHeader: (key: string | symbol, index?: number) => String(key),
-                    ...options,
-                };
-
+                const resolvedOptions = _resolveArrayOptions(rows, options);
                 return strategy.executeArray(location, mapped, resolvedOptions);
             }
         };
@@ -143,7 +151,7 @@ export class EffectFactory<TSource extends object, TLocation = any> {
      * @param effects Effects to call.
      * @returns
      */
-    public sequence<T>(effects: Effect<TSource, T>[]): Effect<TSource, T> {
+    public sequence<T>(...effects: Effect<TSource, T>[]): Effect<TSource, T> {
         return async (strategy: ITargetExecutionStrategy<any, TLocation>, ctx: IEffectContext<TSource, T>) => {
             const value = _resolveValue(ctx);
             for (const f of effects) {
@@ -157,12 +165,29 @@ export class EffectFactory<TSource extends object, TLocation = any> {
     }
 
     /**
-     * Call multiple effects in sequence. When it executs, source value will be transformed with `mapper` first, then pass to `effects`.
-     * @param effects Effects to call.
+     * Call multiple effects in sequence. When it executs, `TSource` object will be transformed with `mapper` first, then pass to `effects`.
      * @param mapper Function to transform the value.
+     * @param effects Effects to call.
      * @returns
      */
-    public sequenceWith<T, R>(effects: Effect<TSource, R>[], mapper: Func1<T, R>): Effect<TSource, R> {
+    public sequenceFromSource<R>(mapper: Func1<TSource, R>, ...effects: Effect<TSource, R>[]): Effect<TSource, R> {
+        return async (strategy: ITargetExecutionStrategy<any, TLocation>, ctx: IEffectContext<TSource, R>) => {
+            const value = mapper(ctx.source!);
+            for (const f of effects) {
+                await f(strategy, {
+                    value,
+                });
+            }
+        };
+    }
+
+    /**
+     * Call multiple effects in sequence. When it executs, source value will be transformed with `mapper` first, then pass to `effects`.
+     * @param mapper Function to transform the value.
+     * @param effects Effects to call.
+     * @returns
+     */
+    public sequenceWith<T, R>(mapper: Func1<T, R>, ...effects: Effect<TSource, R>[]): Effect<TSource, R> {
         const effect = async (strategy: ITargetExecutionStrategy<any, TLocation>, ctx: IEffectContext<TSource, T>) => {
             const raw = _resolveValue(ctx);
             const value = mapper(raw);
@@ -215,6 +240,12 @@ export class EffectFactory<TSource extends object, TLocation = any> {
     }
 
 }
+
+const _resolveArrayOptions = (rows: any[], options?: Partial<ArrayEffectOptions>) => ({
+    keys: typeof rows[0] === "object" ? keys(rows[0]) as any[] : [],
+    resolveHeader: (key: string | symbol, index?: number) => String(key),
+    ...options,
+});
 
 const _resolveValue = <TSource, TValue>(ctx: IEffectContext<TSource, TValue>) =>
     ((!!ctx.source && !!ctx.path) ? get(ctx.source, ctx.path) : ctx.value) as TValue;
