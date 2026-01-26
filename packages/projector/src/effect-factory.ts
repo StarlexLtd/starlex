@@ -143,7 +143,7 @@ export class EffectFactory<TSource extends object, TLocation = any> {
     }
 
     /**
-     * Call multiple effects in sequence.
+     * Execute multiple effects in sequence.
      * @param effects Effects to call.
      * @returns
      */
@@ -161,13 +161,13 @@ export class EffectFactory<TSource extends object, TLocation = any> {
     }
 
     /**
-     * Call multiple effects in sequence. When it executs, `TSource` object will be transformed with `mapper` first, then pass to `effects`.
+     * Execute multiple effects in sequence. When it executs, `TSource` object will be transformed with `mapper` first, then pass to `effects`.
      * @param mapper Function to transform the value.
      * @param effects Effects to call.
      * @returns
      */
-    public sequenceFromSource<R>(mapper: Func1<TSource, R>, ...effects: Effect<TSource, any>[]): Effect<TSource, R> {
-        return async (strategy: ITargetExecutionStrategy<any, TLocation>, ctx: IEffectContext<TSource, R>) => {
+    public sequenceFromSource<R>(mapper: Func1<TSource, R>, ...effects: Effect<TSource, R>[]): Effect<TSource, R> {
+        return async (strategy: ITargetExecutionStrategy<any, TLocation>, ctx: IEffectContext<TSource, any>) => {
             const value = await mapper(ctx.source!);
             for (const f of effects) {
                 await f(strategy, {
@@ -178,12 +178,12 @@ export class EffectFactory<TSource extends object, TLocation = any> {
     }
 
     /**
-     * Call multiple effects in sequence. When it executs, source value will be transformed with `mapper` first, then pass to `effects`.
+     * Execute multiple effects in sequence. When it executs, source value will be transformed with `mapper` first, then pass to `effects`.
      * @param mapper Function to transform the value.
      * @param effects Effects to call.
      * @returns
      */
-    public sequenceWith<T, R>(mapper: Func1<T, R>, ...effects: Effect<TSource, R>[]): Effect<TSource, R> {
+    public sequenceWith<T, R>(mapper: Func1<T, R>, ...effects: Effect<TSource, any>[]): Effect<TSource, R> {
         const effect = async (strategy: ITargetExecutionStrategy<any, TLocation>, ctx: IEffectContext<TSource, T>) => {
             const raw = _resolveValue(ctx);
             const value = await mapper(raw);
