@@ -1,7 +1,13 @@
 {
     "name": "@cyysummer/vue",
     "version": "0.0.1",
+    "description": "Utilities for Vue 3.",
     "license": "MIT",
+    "author": "Chris Liu",
+    "files": [
+        "dist/*.js",
+        "types/**"
+    ],
     "type": "module",
     "module": "./dist/index.js",
     "types": "./types",
@@ -27,11 +33,13 @@
         "vue": ">=3.5.0"
     },
     "devDependencies": {
+        "@vue/reactivity": "catalog:",
         "less": "catalog:",
         "tsup": "catalog:",
         "typescript": "catalog:",
         "vite": "catalog:",
-        "vitest": "catalog:"
+        "vitest": "catalog:",
+        "vue": "catalog:"
     },
     "publishConfig": {
         "access": "public"
