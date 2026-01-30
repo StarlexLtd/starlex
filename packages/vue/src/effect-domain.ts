@@ -1,12 +1,19 @@
-import type { MultiWatchSources, WatchCallback, WatchHandle, WatchOptions, WatchSource } from "vue";
+import type { DebuggerOptions, MultiWatchSources, WatchCallback, WatchEffect, WatchEffectOptions, WatchHandle, WatchOptions, WatchSource } from "vue";
 import type { ReactiveMarker } from "@vue/reactivity";
 
-import { inject, onUnmounted, provide, watch as vueWatch } from "vue";
+import {
+    inject, onUnmounted, provide,
+    watch as vueWatch,
+    watchEffect as vueWatchEffect,
+    watchPostEffect as vueWatchPostEffect,
+    watchSyncEffect as vueWatchSyncEffect,
+} from "vue";
 
 type MaybeUndefined<T, I> = I extends true ? T | undefined : T;
 type MapSources<T, Immediate> = {
     [K in keyof T]: T[K] extends WatchSource<infer V> ? MaybeUndefined<V, Immediate> : T[K] extends object ? MaybeUndefined<T[K], Immediate> : never;
 };
+type WatchEffectFunc<U> = (effect: WatchEffect, options?: U) => WatchHandle;
 
 // #region Effect Domain
 
@@ -39,8 +46,7 @@ export class EffectDomain {
     }
 
     /**
-     * Lock watchers and run `fn()`.
-     * Lock counter equals to watch handlers.
+     * Lock watchers and run `fn()`. Lock counter equals to watch handlers.
      * @param fn
      * @returns
      */
@@ -49,7 +55,7 @@ export class EffectDomain {
     }
 
     /**
-     * Increase lock counter and run `fn()`.
+     * Increase lock counter by 1, and run `fn()`.
      * @param fn
      * @returns
      */
@@ -74,30 +80,41 @@ export class EffectDomain {
     public watch(source: any, cb: any, options?: WatchOptions): WatchHandle {
         const handle = vueWatch(
             source,
-            (...args) => {
-                // 侦听器在创建之后，会持续收集变化，即使调用了 `WatchHandle.pause()`。
-                // 所以要用锁。锁的数量等于创建了多少侦听器。
-                // 每执行一次回调，就把锁-1，直到释放所有的锁。此时，可以真正执行回调了。
-                // After creation, the listener will collect changes continuously, even if `WatchHandle.pause()` is invoked.
-                // So we use lock counter. Counter value equals to handlers created by this `watch()`.
-                // Each time executing watch callback, decrease counter.
-                // When counter decreased to 0, callback can actually execute.
-                if (this._lock) {
-                    this._lock--;
-                    return;
-                }
-
-                // Lock free!
-                cb(...args);
-            },
+            this.gateEffect(cb),
             options);
-        const stop = handle.stop;
-        handle.stop = () => {
-            this._handles.delete(handle);
-            stop();
+        return this.wrapHandle(handle);
+    }
+
+    public readonly watchEffect = this.createWatchEffect(vueWatchEffect);
+    public readonly watchPostEffect = this.createWatchEffect(vueWatchPostEffect);
+    public readonly watchSyncEffect = this.createWatchEffect(vueWatchSyncEffect);
+
+    // #region Private
+
+    private createWatchEffect<U>(runner: WatchEffectFunc<U>): WatchEffectFunc<U> {
+        return (effect, options) => {
+            const gatedEffect = this.gateEffect(effect);
+            const handle = runner(gatedEffect, options);
+            return this.wrapHandle(handle);
         };
-        this._handles.add(handle);
-        return handle;
+    }
+
+    private gateEffect<T extends Function>(effect: T): T {
+        return (((...args: any[]) => {
+            // 侦听器在创建之后，会持续收集变化，即使调用了 `WatchHandle.pause()`。
+            // 所以要用锁。锁的数量等于创建了多少侦听器。
+            // 每执行一次回调，就把锁-1，直到释放所有的锁。此时，可以真正执行回调了。
+            // After creation, the listener will collect changes continuously, even if `WatchHandle.pause()` is invoked.
+            // So we use lock counter. Counter value equals to handlers created by this `watch()`.
+            // Each time executing watch callback, decrease counter.
+            // When counter decreased to 0, callback can actually execute.
+            if (this._lock > 0) {
+                this._lock--;
+                return;
+            }
+
+            return effect(...args);
+        }) as unknown) as T;
     }
 
     // Only pause when unlocked.
@@ -122,8 +139,21 @@ export class EffectDomain {
             // Here we shall not decrease lock.
             // Lock must be decreased in watch callback(our wrapper).
             this.resume();
+            // After resume, each effects will run once. At this time, lock will be decreased.
         }
     }
+
+    private wrapHandle(handle: WatchHandle): WatchHandle {
+        const stop = handle.stop;
+        handle.stop = () => {
+            this._handles.delete(handle);
+            stop();
+        };
+        this._handles.add(handle);
+        return handle;
+    }
+
+    // #endregion
 
     get isLocked(): boolean {
         return this._lock > 0;
