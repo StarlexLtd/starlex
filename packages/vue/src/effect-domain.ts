@@ -134,7 +134,18 @@ export class EffectDomain {
 
 // #region Utilities
 
-export function provideEffectDomain(): EffectDomain {
+/**
+ * Provide a effect domain.
+ * @param force Determine whether to create a new domain when there is one. If do need a new domain, set to `true`.
+ * @returns `EffectDomain`
+ */
+export function provideEffectDomain(force = false): EffectDomain {
+    // If not force to create, check existing domain.
+    if (!force) {
+        const existing = inject<EffectDomain | null>(DomainKey, null);
+        if (existing) return existing;
+    }
+
     const domain = new EffectDomain();
     provide(DomainKey, domain);
 
@@ -146,6 +157,12 @@ export function provideEffectDomain(): EffectDomain {
     return domain;
 }
 
+/**
+ * Create a watcher in current effect domain.
+ * @param source
+ * @param cb
+ * @param options
+ */
 export function useDomainWatch<T, Immediate extends Readonly<boolean> = false>(source: WatchSource<T>, cb: WatchCallback<T, MaybeUndefined<T, Immediate>>, options?: WatchOptions<Immediate>): WatchHandle;
 export function useDomainWatch<T extends Readonly<MultiWatchSources>, Immediate extends Readonly<boolean> = false>(sources: readonly [...T] | T, cb: [T] extends [ReactiveMarker] ? WatchCallback<T, MaybeUndefined<T, Immediate>> : WatchCallback<MapSources<T, false>, MapSources<T, Immediate>>, options?: WatchOptions<Immediate>): WatchHandle;
 export function useDomainWatch<T extends MultiWatchSources, Immediate extends Readonly<boolean> = false>(sources: [...T], cb: WatchCallback<MapSources<T, false>, MapSources<T, Immediate>>, options?: WatchOptions<Immediate>): WatchHandle;
@@ -154,8 +171,14 @@ export function useDomainWatch(source: any, callback: any, options?: WatchOption
     return useEffectDomain().watch(source, callback, options);
 }
 
+/**
+ * Get injected effect domain.
+ * @returns `EffectDomain`
+ */
 export function useEffectDomain(): EffectDomain {
-    return inject<EffectDomain>(DomainKey, EffectDomain.Default);
+    const domain = inject<EffectDomain | null>(DomainKey, null);
+    if (domain) return domain;
+    throw new Error("EffectDomain: No domain provided. Call `provideEffectDomain()` first.");
 }
 
 // #endregion
