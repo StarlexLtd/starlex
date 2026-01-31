@@ -2,7 +2,7 @@ import type { DebuggerOptions, MultiWatchSources, WatchCallback, WatchEffect, Wa
 import type { ReactiveMarker } from "@vue/reactivity";
 
 import {
-    inject, onUnmounted, provide,
+    inject, onUnmounted, nextTick, provide,
     watch as vueWatch,
     watchEffect as vueWatchEffect,
     watchPostEffect as vueWatchPostEffect,
@@ -22,6 +22,7 @@ const DomainKey = Symbol("EffectDomain");
 export class EffectDomain {
     private readonly _handles = new Set<WatchHandle>();
     private _lock = 0;
+    private _running = false;
     public static readonly Default = new EffectDomain();
 
     /**
@@ -110,6 +111,7 @@ export class EffectDomain {
             // When counter decreased to 0, callback can actually execute.
             if (this._lock > 0) {
                 this._lock--;
+                log.trace("EffectDomain: skipping effect, remaining lock:", this._lock);
                 return;
             }
 
@@ -130,8 +132,14 @@ export class EffectDomain {
     }
 
     private async runCore<T>(fn: () => MaybePromise<T>, counter: number): Promise<T> {
+        if (this._running) {
+            throw new Error("EffectDomain: init()/run() cannot be nested.");
+        }
+
+        this._running = true;
         this.pause();
         this._lock = counter;
+        log.trace("EffectDomain: domain locked, counter:", counter);
         try {
             // Must await here, make sure `resume()` is called after `fn()`.
             return await fn();
@@ -140,6 +148,15 @@ export class EffectDomain {
             // Lock must be decreased in watch callback(our wrapper).
             this.resume();
             // After resume, each effects will run once. At this time, lock will be decreased.
+
+            // Runtime sequence: resume() -> run all watches -> nextTick() -> clear lock.
+
+            // Make sure lock is cleared.
+            nextTick(() => {
+                this._lock = 0;
+                this._running = false;
+                log.trace("EffectDomain: domain unlocked.");
+            });
         }
     }
 
