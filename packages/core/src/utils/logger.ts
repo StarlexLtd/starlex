@@ -3,6 +3,7 @@
 import chalk from "chalk";
 import { __DEBUG, __TRACE, IS_BROWSER } from "../consts";
 
+chalk.level = 3;
 const chalkText = chalk.whiteBright;
 const successPrefix = chalkText.bgHex(IS_BROWSER ? "#14A44D" : "#15803D")(" SUCCESS ");
 const errorPrefix   = chalkText.bgHex(IS_BROWSER ? "#DC4C64" : "#DC2626")("  ERROR  ");
