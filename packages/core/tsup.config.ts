@@ -7,4 +7,8 @@ const localConfig = definePackageConfig(pkg);
 export default defineConfig({
     ...rootConfig,
     ...localConfig,
+    entry: {
+        index: "src/index.ts",
+        polyfill: "src/polyfill/index.ts",
+    },
 });

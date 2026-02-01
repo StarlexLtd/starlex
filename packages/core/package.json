@@ -2,6 +2,11 @@
     "name": "@cyysummer/core",
     "version": "0.0.12",
     "license": "MIT",
+    "author": "Chris Liu",
+    "files": [
+        "dist/*.js",
+        "types/**"
+    ],
     "type": "module",
     "module": "./dist/index.js",
     "types": "./types",
@@ -9,6 +14,10 @@
         ".": {
             "import": "./dist/index.js",
             "types": "./types/index.d.ts"
+        },
+        "./polyfill": {
+            "import": "./dist/polyfill.js",
+            "types": "./types/polyfill.d.ts"
         }
     },
     "scripts": {
