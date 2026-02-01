@@ -27,7 +27,7 @@
         "test": "vitest"
     },
     "dependencies": {
-        "@cyysummer/core": "workspace:^"
+        "@cyysummer/core": "workspace:*"
     },
     "peerDependencies": {
         "vue": ">=3.5.0"
