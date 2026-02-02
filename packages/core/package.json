@@ -1,6 +1,6 @@
 {
     "name": "@cyysummer/core",
-    "version": "0.0.12",
+    "version": "0.0.14",
     "license": "MIT",
     "author": "Chris Liu",
     "files": [
@@ -25,7 +25,7 @@
         "clean": "rm -rf ./dist",
         "prebuild": "tsup --dts-only",
         "build": "tsup --no-dts",
-        "postbuild": "mv -f dist/index.d.ts types/lib.d.ts",
+        "postbuild": "mv -f dist/index.d.ts types/lib.d.ts && rm -f dist/*.d.ts",
         "release": "pnpm run clean && pnpm run build",
         "test": "vitest"
     },
