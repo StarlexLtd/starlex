@@ -1,6 +1,6 @@
 {
     "name": "@cyysummer/vue",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "description": "Utilities for Vue 3.",
     "license": "MIT",
     "author": "Chris Liu",
