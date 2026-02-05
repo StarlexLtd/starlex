@@ -2,18 +2,21 @@ import type { DebuggerOptions, MultiWatchSources, WatchCallback, WatchEffect, Wa
 import type { ReactiveMarker } from "@vue/reactivity";
 
 import {
-    inject, onUnmounted, nextTick, provide,
+    inject, onUnmounted, provide,
     watch as vueWatch,
     watchEffect as vueWatchEffect,
     watchPostEffect as vueWatchPostEffect,
     watchSyncEffect as vueWatchSyncEffect,
 } from "vue";
+import { InteractionController } from "@cyysummer/core";
 
 type MaybeUndefined<T, I> = I extends true ? T | undefined : T;
 type MapSources<T, Immediate> = {
     [K in keyof T]: T[K] extends WatchSource<infer V> ? MaybeUndefined<V, Immediate> : T[K] extends object ? MaybeUndefined<T[K], Immediate> : never;
 };
 type WatchEffectFunc<U> = (effect: WatchEffect, options?: U) => WatchHandle;
+
+const DEFAULT_EVENTS = ["pointerdown", "keydown", "input"] as (keyof GlobalEventHandlersEventMap)[];
 
 // #region Effect Domain
 
@@ -22,28 +25,31 @@ const DomainKey = Symbol("EffectDomain");
 export class EffectDomain {
     private readonly _handles = new Set<WatchHandle>();
     private _lock = 0;
+    private _lockResolveFn?: Action1<void>;
     private _running = false;
-    public static readonly Default = new EffectDomain();
 
     /**
      * Manually increase lock counter.
-     * @param count
      */
-    public beginUpdate(count: number = 1) {
-        this._lock += count;
+    public beginUpdate() {
+        this._lock++;
     }
 
-    public clear() {
+    public cleanup() {
+        this._lock = 0;
+        this._lockResolveFn?.();
         this._handles.clear();
     }
 
     /**
      * Manually decrease lock counter.
-     * @param count
      */
-    public endUpdate(count: number = 1) {
-        this._lock -= count;
+    public endUpdate() {
+        this._lock--;
         if (this._lock < 0) this._lock = 0;
+        if (this._lock === 0) {
+            this._lockResolveFn?.();
+        }
     }
 
     /**
@@ -51,17 +57,8 @@ export class EffectDomain {
      * @param fn
      * @returns
      */
-    public init<T>(fn: () => MaybePromise<T>): Promise<T> {
+    public run<T>(fn: () => MaybePromise<T>): Promise<void> {
         return this.runCore(fn, this._handles.size);
-    }
-
-    /**
-     * Increase lock counter by 1, and run `fn()`.
-     * @param fn
-     * @returns
-     */
-    public run<T>(fn: () => MaybePromise<T>): Promise<T> {
-        return this.runCore(fn, this._lock + 1);
     }
 
     /**
@@ -110,7 +107,8 @@ export class EffectDomain {
             // Each time executing watch callback, decrease counter.
             // When counter decreased to 0, callback can actually execute.
             if (this._lock > 0) {
-                this._lock--;
+                // this._lock--;
+                this.endUpdate();
                 log.trace("EffectDomain: skipping effect, remaining lock:", this._lock);
                 return;
             }
@@ -131,33 +129,41 @@ export class EffectDomain {
         this._handles.forEach(h => h.resume());
     }
 
-    private async runCore<T>(fn: () => MaybePromise<T>, counter: number): Promise<T> {
+    private async runCore<T>(fn: () => MaybePromise<T>, counter: number): Promise<void> {
         if (this._running) {
-            throw new Error("EffectDomain: init()/run() cannot be nested.");
+            throw new Error("EffectDomain: domain is locked, cannot call `run()` again.");
         }
 
         this._running = true;
-        this.pause();
         this._lock = counter;
-        log.trace("EffectDomain: domain locked, counter:", counter);
+        const ctrl = new InteractionController(document, DEFAULT_EVENTS);
+        const lockSignal = new Promise<void>((resolve) => { this._lockResolveFn = resolve; });
+        this.pause();
+        log.trace("EffectDomain: locked with counter:", counter);
         try {
             // Must await here, make sure `resume()` is called after `fn()`.
-            return await fn();
+            await fn();
         } finally {
-            // Here we shall not decrease lock.
-            // Lock must be decreased in watch callback(our wrapper).
+            // Here we shall NOT decrease lock.
+            // Lock must be decreased in watch callbacks(our wrapper).
             this.resume();
-            // After resume, each effects will run once. At this time, lock will be decreased.
-
-            // Runtime sequence: resume() -> run all watches -> nextTick() -> clear lock.
-
-            // Make sure lock is cleared.
-            nextTick(() => {
-                this._lock = 0;
-                this._running = false;
-                log.trace("EffectDomain: domain unlocked.");
-            });
+            // After resume, each callback will run once. At this time, lock will be decreased.
         }
+
+        try {
+            // Wait for signals.
+            // If `fn()` didn't trigger all watches, user interaction can be used to finish race.
+            await Promise.race([
+                lockSignal,
+                ctrl.signal,
+            ]);
+        } finally {
+            // Unlock.
+            this._lock = 0;
+            this._running = false;
+            log.trace("EffectDomain: unlocked.");
+        }
+        // Run sequence: resume() -> run all watches -> nextTick() -> clear lock.
     }
 
     private wrapHandle(handle: WatchHandle): WatchHandle {
@@ -198,7 +204,7 @@ export function provideEffectDomain(force = false): EffectDomain {
 
     // Release watch handles.
     onUnmounted(() => {
-        domain.clear();
+        domain.cleanup();
     });
 
     return domain;
