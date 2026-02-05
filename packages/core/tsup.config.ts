@@ -9,6 +9,6 @@ export default defineConfig({
     ...localConfig,
     entry: {
         index: "src/index.ts",
-        polyfill: "src/polyfill/index.ts",
+        polyfill: "src/polyfills/index.ts",
     },
 });
