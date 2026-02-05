@@ -6,5 +6,6 @@ export * from "./class-decorators";
 export * from "./lang";
 export * from "./mixin";
 export * from "./patterns";
+export * from "./signals";
 export * from "./utils";
 export { installGlobal } from "./installer";
