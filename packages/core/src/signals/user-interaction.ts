@@ -71,8 +71,6 @@ export class InteractionController implements ISignalController<InteractionSigna
             for (const name of events) {
                 target.removeEventListener(name, listener, options);
             }
-
-            events.length = 0;
         };
 
         for (const name of events) {
