@@ -1,6 +1,6 @@
 {
     "name": "@cyysummer/core",
-    "version": "0.0.15",
+    "version": "0.0.16",
     "license": "MIT",
     "author": "Chris Liu",
     "files": [
@@ -21,7 +21,7 @@
         }
     },
     "scripts": {
-        "dev": "tsup --watch",
+        "dev": "tsup --watch --onSuccess \"pnpm prebuild && pnpm postbuild\" ",
         "clean": "rm -rf ./dist",
         "prebuild": "tsup --dts-only",
         "build": "tsup --no-dts",
