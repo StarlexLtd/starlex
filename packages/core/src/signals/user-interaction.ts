@@ -1,35 +1,88 @@
-export function createUserInteractionSignal<T extends readonly DOMEventName[]>(events: T): ISignal<void> {
-    let triggered = false;
-    let resolveFn!: Action;
+interface InteractionSignalOptions {
+    /**
+     * Default: true
+     */
+    once?: boolean;
+}
 
-    const promise = new Promise<void>(resolve => {
-        resolveFn = resolve;
-    });
+export class InteractionSignal extends EventTarget implements ISignal<Event> {
+    private readonly _promise = new Promise<Event>(r => (this._resolve = r));
+    private _reason?: Event;
+    private _resolve!: (e: Event) => void;
+    private _triggered = false;
+    public readonly then = this._promise.then.bind(this._promise);
 
-    function handler(e: Event) {
-        // filter programmatic triggered events.
-        if (!e.isTrusted) return;
-        if (triggered) return;
-
-        log.trace("Signal: user interaction detected. Related events:", events);
-        triggered = true;
-        cleanup();
-        resolveFn();
+    constructor(options: InteractionSignalOptions = {}) {
+        super();
+        this.once = options.once ?? true;
     }
 
-    function cleanup() {
-        for (const event of events) {
-            window.removeEventListener(event, handler, true);
+    /** Trigger the signal. */
+    public trigger(reason: Event) {
+        if (!reason.isTrusted   // Only accept user interaction.
+            || this._triggered) return;
+
+        this._triggered = true;
+        this._reason = reason;
+        log.trace(`Signal: user interaction detected. Reason: "${reason.type}". Data:`, reason);
+        this.dispatchEvent(new Event("interaction"));
+        this._resolve(reason);
+    }
+
+    public readonly once: boolean;
+
+    get reason() {
+        return this._reason;
+    }
+
+    get triggered() {
+        return this._triggered;
+    }
+
+    get [Symbol.toStringTag]() {
+        return "InteractionSignal";
+    }
+}
+
+export class InteractionController implements ISignalController<InteractionSignal> {
+    private cleanup: Action;
+    public readonly signal: InteractionSignal;
+
+    constructor(
+        target: EventTarget,
+        events: (keyof GlobalEventHandlersEventMap)[],
+        options?: AddEventListenerOptions,
+    ) {
+        this.signal = new InteractionSignal();
+        options = {
+            capture: true,
+            passive: true,
+            ...options,
+        };
+
+        const listener = (e: Event) => {
+            // if (!e.isTrusted || this.signal.triggered) return;
+            if (this.signal.once) this.cleanup();
+            // signal.trigger() will check isTrusted + triggered.
+            this.signal.trigger(e);
+        };
+
+        this.cleanup = () => {
+            for (const name of events) {
+                target.removeEventListener(name, listener, options);
+            }
+
+            events.length = 0;
+        };
+
+        for (const name of events) {
+            target.addEventListener(name, listener, options);
         }
     }
 
-    // capture phase, make sure listen events early.
-    for (const event of events) {
-        window.addEventListener(event, handler, { capture: true, passive: true });
+    /** Manually trigger. */
+    public interact(reason: Event = new Event("manual-interaction")) {
+        this.signal.trigger(reason);
+        this.cleanup();
     }
-
-    return {
-        promise,
-        cancel: cleanup,
-    };
 }
