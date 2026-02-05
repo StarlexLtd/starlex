@@ -15,6 +15,9 @@
             "import": "./dist/index.js",
             "types": "./types/index.d.ts"
         },
+        "./global": {
+            "import": "./dist/global.js"
+        },
         "./polyfill": {
             "import": "./dist/polyfill.js",
             "types": "./types/polyfill.d.ts"

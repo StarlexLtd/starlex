@@ -29,16 +29,14 @@ TRACE=1
 
 在合适的 `index.d.ts` 中加入：
 
-```typescript
-/// <reference types="@cyysummer/core/types" />
+```
+/// <reference types="@cyysummer/core" />
 ```
 
-在合适的地方，尽早调用：
+尽早引用：
 
 ```typescript
-import { installGlobal } from "@cyysummer/core";
-
-installGlobal();
+import "@cyysummer/core/global";
 ```
 
 针对特定框架的调用位置：

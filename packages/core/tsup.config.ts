@@ -9,6 +9,8 @@ export default defineConfig({
     ...localConfig,
     entry: {
         index: "src/index.ts",
+        global: "src/globals/index.ts",
         polyfill: "src/polyfills/index.ts",
     },
+    splitting: true,
 });
