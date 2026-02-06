@@ -1,10 +1,9 @@
 import type { EventType, Handler, WildcardHandler } from "mitt";
+import type { Capability } from "./base";
 
 import mitt from "mitt";
 
-type EventCapability<T extends Constructor, TEvents extends Record<EventType, unknown>> = T & {
-    new(...args: any[]): InstanceType<T> & IEventful<TEvents>;
-}
+// export type EventCapability<TEvents extends Record<EventType, unknown>, TBase extends Constructor> = Capability<IEventful<TEvents>, TBase>;
 
 /**
  * Create a new class extends `Base` and add event emitter.
@@ -16,29 +15,29 @@ type EventCapability<T extends Constructor, TEvents extends Record<EventType, un
  * @param Base
  * @returns
  */
-export function withEvents<TEvents extends Record<EventType, unknown>, TBase extends Constructor = Constructor>(Base: TBase = class { } as TBase): EventCapability<TBase, TEvents> {
-    return class extends Base implements IEventful<TEvents> {
-        private readonly _emitter = mitt<TEvents>();
+export function withEvents<TEvents extends Record<EventType, unknown>, TBase extends Constructor = Constructor>(Base: TBase = Object as unknown as TBase)/*: EventCapability<TEvents, TBase>*/ {
+    return class EventEnhanced extends Base implements IEventful<TEvents> {
+        readonly #emitter = mitt<TEvents>();
 
-        get all() { return this._emitter.all; }
+        get all() { return this.#emitter.all; }
 
         on(type: "*", handler: WildcardHandler<TEvents>): IEventful<TEvents>;
         on<Key extends keyof TEvents>(type: Key, handler: Handler<TEvents[Key]>): IEventful<TEvents>;
         on(type: any, handler: any): IEventful<TEvents> {
-            this._emitter.on(type, handler);
+            this.#emitter.on(type, handler);
             return this;
         }
 
         off(type: "*", handler: WildcardHandler<TEvents>): IEventful<TEvents>;
         off<Key extends keyof TEvents>(name: Key, handler: Handler<TEvents[Key]>): IEventful<TEvents>;
         off(type: any, handler: any): IEventful<TEvents> {
-            this._emitter.off(type, handler);
+            this.#emitter.off(type, handler);
             return this;
         }
 
         emit<Key extends keyof TEvents>(name: Key, data?: TEvents[Key]): IEventful<TEvents> {
-            this._emitter.emit(name, data ?? (void 0 as any));
+            this.#emitter.emit(name, data ?? (void 0 as any));
             return this;
         }
-    } as any;
+    }/* as unknown as EventCapability<TEvents, TBase>*/;
 }
