@@ -2,11 +2,21 @@ import type { EventType, Handler, WildcardHandler } from "mitt";
 
 import mitt from "mitt";
 
-type EventMixin<T extends Constructor, TEvents extends Record<EventType, unknown>> = T & {
+type EventCapability<T extends Constructor, TEvents extends Record<EventType, unknown>> = T & {
     new(...args: any[]): InstanceType<T> & IEventful<TEvents>;
 }
 
-export function withEvents<TEvents extends Record<EventType, unknown>, TBase extends Constructor = Constructor>(Base: TBase = class { } as TBase): EventMixin<TBase, TEvents> {
+/**
+ * Create a new class extends `Base` and add event emitter.
+ *
+ * @example
+ * ```javascript
+ * class MyClass extends withEvents<EventType>(baseClass) {}
+ * ```
+ * @param Base
+ * @returns
+ */
+export function withEvents<TEvents extends Record<EventType, unknown>, TBase extends Constructor = Constructor>(Base: TBase = class { } as TBase): EventCapability<TBase, TEvents> {
     return class extends Base implements IEventful<TEvents> {
         private readonly _emitter = mitt<TEvents>();
 
