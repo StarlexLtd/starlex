@@ -3,7 +3,7 @@ import type { Capability } from "./base";
 
 import mitt from "mitt";
 
-// export type EventCapability<TEvents extends Record<EventType, unknown>, TBase extends Constructor> = Capability<IEventful<TEvents>, TBase>;
+export type EventCapability<TEvents extends Record<EventType, unknown>, TBase extends Constructor> = Capability<IEventful<TEvents>, TBase>;
 
 /**
  * Create a new class extends `Base` and add event emitter.
@@ -15,7 +15,10 @@ import mitt from "mitt";
  * @param Base
  * @returns
  */
-export function withEvents<TEvents extends Record<EventType, unknown>, TBase extends Constructor = Constructor>(Base: TBase = Object as unknown as TBase)/*: EventCapability<TEvents, TBase>*/ {
+export function withEvents<
+    TEvents extends Record<EventType, unknown>,
+    TBase extends Constructor = Constructor
+>(Base: TBase = Object as unknown as TBase): EventCapability<TEvents, TBase> {
     return class EventEnhanced extends Base implements IEventful<TEvents> {
         readonly #emitter = mitt<TEvents>();
 
@@ -39,5 +42,5 @@ export function withEvents<TEvents extends Record<EventType, unknown>, TBase ext
             this.#emitter.emit(name, data ?? (void 0 as any));
             return this;
         }
-    }/* as unknown as EventCapability<TEvents, TBase>*/;
+    };
 }

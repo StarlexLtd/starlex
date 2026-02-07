@@ -1,8 +1,16 @@
+import type { Capability } from "./base";
+
 export type Disposable =
     | (() => void)
     | { dispose(): void; };
 
-export function withDisposable<TBase extends Constructor>(Base: TBase = Object as unknown as TBase) {
+export interface IDisposable {
+    dispose(): void;
+}
+
+type DisposableCapability<TBase extends Constructor> = Capability<IDisposable, TBase>;
+
+export function withDisposable<TBase extends Constructor>(Base: TBase = Object as unknown as TBase): DisposableCapability<TBase> {
     return class DisposableEnhanced extends Base {
         readonly #disposables: Disposable[] = [];
         #disposed = false;
@@ -27,7 +35,7 @@ export function withDisposable<TBase extends Constructor>(Base: TBase = Object a
             if (this.#disposed) return;
             this.#disposed = true;
 
-            // 反向释放更安全（栈语义）
+            // Reverse-ordered
             for (let i = this.#disposables.length - 1; i >= 0; i--) {
                 disposeOf(this.#disposables[i]);
             }

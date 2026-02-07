@@ -1,7 +1,15 @@
 // export type Capability<TInstance, TBase extends Constructor> = new (...args: ConstructorParameters<TBase>) => InstanceType<TBase> & TInstance;
 
-export type Capability<TIn extends Constructor, TOut extends Constructor> = (Base: TIn) => TOut;
+export type Capability<TExtended, TBase extends Constructor> =
+    & TBase
+    & {
+        new(...args: any[]): InstanceType<TBase> & TExtended;
+        // readonly [CAPABILITY]: TTag;
+    };
 
+// export type Capability<TIn extends Constructor, TOut extends Constructor> = (Base: TIn) => TOut;
+
+/*
 type InstanceOf<C> =
     C extends (base: any) => new (...args: any[]) => infer I
     ? I
@@ -15,7 +23,7 @@ type UnionToIntersection<U> =
 
 type ApplyCapabilities<
     TBase extends Constructor,
-    TCaps extends readonly ((base: any) => Constructor)[]
+    TCaps extends readonly Capability<any, any>[]
 > =
     new (
         ...args: ConstructorParameters<TBase>
@@ -34,3 +42,4 @@ export function withCapabilities<
         Base
     ) as any;
 }
+*/

@@ -48,7 +48,7 @@ declare global {
 
     export type UnwrapArray<T> = T extends Array<infer K> ? K : unknown;
 
-    export type Constructor<T = object> = new (...args: any[]) => T;
+    export type Constructor<T = any> = new (...args: any[]) => T;
 }
 
 export { };
