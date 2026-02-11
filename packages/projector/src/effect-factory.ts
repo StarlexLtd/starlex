@@ -166,8 +166,8 @@ export class EffectFactory<TSource extends object, TLocation = any> {
      * @param effects Effects to call.
      * @returns
      */
-    public sequenceFromSource<R>(mapper: Func1<TSource, R>, ...effects: Effect<TSource, R>[]): Effect<TSource, R> {
-        return async (strategy: ITargetExecutionStrategy<any, TLocation>, ctx: IEffectContext<TSource, any>) => {
+    public sequenceFromSource<R>(mapper: Func1<TSource, R>, ...effects: Effect<TSource, any>[]): Effect<TSource, R> {
+        return async (strategy: ITargetExecutionStrategy<any, TLocation>, ctx: IEffectContext<TSource, R>) => {
             const value = await mapper(ctx.source!);
             for (const f of effects) {
                 await f(strategy, {

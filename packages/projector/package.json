@@ -27,12 +27,9 @@
         "test": "vitest"
     },
     "dependencies": {
-        "@cyysummer/core": "workspace:^",
+        "@cyysummer/core": "workspace:*",
         "lodash-es": "catalog:",
         "on-change": "catalog:"
-    },
-    "peerDependencies": {
-        "@cyysummer/core": "workspace:^"
     },
     "devDependencies": {
         "@types/lodash-es": "catalog:",

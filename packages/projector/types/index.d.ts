@@ -1,4 +1,4 @@
-/// <reference path="../../core/types/index.d.ts" />
+/// <reference types="@cyysummer/core" />
 /// <reference path="./lib.d.ts" />
 /// <reference path="./types.d.ts" />
 
