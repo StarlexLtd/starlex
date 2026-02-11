@@ -1,6 +1,6 @@
 {
     "name": "@cyysummer/element-plus",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "license": "MIT",
     "type": "module",
     "module": "./dist/index.js",
@@ -21,7 +21,7 @@
         "test": "vitest"
     },
     "dependencies": {
-        "@cyysummer/core": "workspace:^"
+        "@cyysummer/core": "workspace:*"
     },
     "peerDependencies": {
         "element-plus": ">=2.11.0",

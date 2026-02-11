@@ -1,5 +1,5 @@
 {
-    "name": "starlex",
+    "name": "cyysummer",
     "version": "0.0.1",
     "license": "MIT",
     "type": "module",
@@ -14,7 +14,6 @@
     },
     "types": "test-dts/index.d.ts",
     "dependencies": {
-        "@cyysummer/core": "workspace:*"
     },
     "devDependencies": {
         "@types/eslint": "catalog:",
