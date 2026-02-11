@@ -22,6 +22,15 @@ const DEFAULT_EVENTS = ["pointerdown", "keydown", "input"] as (keyof GlobalEvent
 
 const DomainKey = Symbol("EffectDomain");
 
+/**
+ * 响应式副作用的域控制器。
+ *
+ * 对响应式对象的属性进行赋值时，会触发副作用。
+ * 但在初始化赋值时，例如为表单填充已有数据，副作用可能更改其他属性，进而破坏赋值过程。
+ * 因此需要用域进行管控。
+ * 使用 `EffectDomain.watch()` 创建副作用，使用 `EffectDomain.run()` 进行带锁的操作，确保受管控的副作用在 `run()` 之后不会触发。
+ * 当所有副作用都触发过，或用户操作了界面，那么解锁。
+ */
 export class EffectDomain {
     private readonly _handles = new Set<WatchHandle>();
     private _lock = 0;
@@ -163,7 +172,7 @@ export class EffectDomain {
             this._running = false;
             log.trace("EffectDomain: unlocked.");
         }
-        // Run sequence: resume() -> run all watches -> nextTick() -> clear lock.
+        // Run sequence: resume() -> run all watches -> wait for signals -> unlock.
     }
 
     private wrapHandle(handle: WatchHandle): WatchHandle {
