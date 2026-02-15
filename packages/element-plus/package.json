@@ -21,13 +21,14 @@
         "test": "vitest"
     },
     "dependencies": {
-        "@cyysummer/core": "workspace:*"
     },
     "peerDependencies": {
+        "@cyysummer/core": "workspace:*",
         "element-plus": ">=2.11.0",
         "vue": ">=3.5.0"
     },
     "devDependencies": {
+        "@cyysummer/core": "workspace:*",
         "less": "catalog:",
         "tsup": "catalog:",
         "typescript": "catalog:",

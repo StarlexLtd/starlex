@@ -27,11 +27,14 @@
         "test": "vitest"
     },
     "dependencies": {
-        "@cyysummer/core": "workspace:*",
         "lodash-es": "catalog:",
         "on-change": "catalog:"
     },
+    "peerDependencies": {
+        "@cyysummer/core": "workspace:*"
+    },
     "devDependencies": {
+        "@cyysummer/core": "workspace:*",
         "@types/lodash-es": "catalog:",
         "tsup": "catalog:",
         "typescript": "catalog:",

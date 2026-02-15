@@ -18,14 +18,15 @@
         "test": "vitest"
     },
     "dependencies": {
-        "@cyysummer/core": "workspace:*"
     },
     "peerDependencies": {
+        "@cyysummer/core": "workspace:*",
         "arctic": "catalog:",
         "mitt": "catalog:",
         "mongodb": "catalog:"
     },
     "devDependencies": {
+        "@cyysummer/core": "workspace:*",
         "@sveltejs/kit": "catalog:",
         "mongodb": "catalog:"
     },
