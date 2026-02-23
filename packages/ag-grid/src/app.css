@@ -1,0 +1,171 @@
+@import "tailwindcss";
+
+@plugin "daisyui" {
+    themes: light --default;
+    logs: true;
+}
+
+@plugin "daisyui/theme" {
+    name: "light";
+    default: true;
+
+    --color-primary: #3b71ca;
+    --color-primary-content: #fafafa;
+    --color-secondary: #9fa6b2;
+    --color-secondary-content: #fafafa;
+    --color-accent: oklch(71.86% 0.2176 310.43);
+    --color-accent-content: #fafafa;
+    --color-neutral: oklch(23.04% 0.065 269.31);
+    --color-neutral-content: oklch(94.51% 0.179 104.32);
+    --color-base-content: #1f2937;
+    --color-info: #54b4d3;
+    --color-info-content: #fafafa;
+    --color-success: #14a44d;
+    --color-success-content: #fafafa;
+    --color-warning: #e4a11b;
+    --color-warning-content: #fafafa;
+    --color-error: #dc4c64;
+    --color-error-content: #fafafa;
+}
+
+@theme {
+    /* Primary Colors */
+    --color-primary: #3b71ca;
+    --color-primary-50: #f1f5fb;
+    --color-primary-100: #e3ebf7;
+    --color-primary-200: #c7d7f0;
+    --color-primary-300: #abc2e8;
+    --color-primary-400: #8faee0;
+    --color-primary-500: #6590d5;
+    --color-primary-600: #3061af;
+    --color-primary-700: #285192;
+    --color-primary-800: #204075;
+    --color-primary-900: #183058;
+    --color-primary-950: #0f1d34;
+
+    /* Secondary Colors */
+    --color-secondary: #9fa6b2;
+    --color-secondary-50: #f8f9f9;
+    --color-secondary-100: #f1f2f4;
+    --color-secondary-200: #e4e6e9;
+    --color-secondary-300: #d6d9de;
+    --color-secondary-400: #c8ccd3;
+    --color-secondary-500: #b3b9c2;
+    --color-secondary-600: #848d9c;
+    --color-secondary-700: #6b7585;
+    --color-secondary-800: #565d6b;
+    --color-secondary-900: #404650;
+    --color-secondary-950: #2c323b;
+
+    /* Success Colors */
+    --color-success: #14a44d;
+    --color-success-50: #eafcf2;
+    --color-success-100: #d6fae4;
+    --color-success-200: #acf5c9;
+    --color-success-300: #83f0ae;
+    --color-success-400: #59ea93;
+    --color-success-500: #1ce26b;
+    --color-success-600: #118c42;
+    --color-success-700: #0e7537;
+    --color-success-800: #0c5d2c;
+    --color-success-900: #094621;
+    --color-success-950: #052e16;
+
+    /* Danger Colors */
+    --color-danger: #dc4c64;
+    --color-danger-50: #fcf2f4;
+    --color-danger-100: #fae5e9;
+    --color-danger-200: #f5ccd3;
+    --color-danger-300: #f0b2bd;
+    --color-danger-400: #eb99a6;
+    --color-danger-500: #e37285;
+    --color-danger-600: #d42a46;
+    --color-danger-700: #b0233a;
+    --color-danger-800: #8d1c2f;
+    --color-danger-900: #6a1523;
+    --color-danger-950: #470e18;
+
+    /* Warning Colors */
+    --color-warning: #e4a11b;
+    --color-warning-50: #fdf8ef;
+    --color-warning-100: #fbf2de;
+    --color-warning-200: #f7e4be;
+    --color-warning-300: #f4d79d;
+    --color-warning-400: #f0c97d;
+    --color-warning-500: #eab54c;
+    --color-warning-600: #c48a17;
+    --color-warning-700: #a37313;
+    --color-warning-800: #825c0f;
+    --color-warning-900: #62450b;
+    --color-warning-950: #3d2b07;
+
+    /* Info Colors */
+    --color-info: #54b4d3;
+    --color-info-50: #f3fafc;
+    --color-info-100: #e7f4f9;
+    --color-info-200: #cee9f2;
+    --color-info-300: #b6dfec;
+    --color-info-400: #9ed4e6;
+    --color-info-500: #79c4dc;
+    --color-info-600: #34a4ca;
+    --color-info-700: #2b89a8;
+    --color-info-800: #236d86;
+    --color-info-900: #1a5265;
+    --color-info-950: #0f3342;
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentcolor);
+    }
+
+    svg.iconify {
+        display: inline;
+    }
+}
+
+@layer utilities {
+    * {
+        scrollbar-color: initial;
+    }
+
+    /* 移除 Chrome、Edge 和 Safari 的默认时钟图标 */
+    input[type="time"]::-webkit-calendar-picker-indicator {
+        display: none;
+    }
+
+    /* 移除 Firefox 的默认时钟图标 */
+    input[type="time"] {
+        -moz-appearance: textfield;
+    }
+
+    /*
+    .btn:focus-visible,
+    .card:focus-visible,
+    .checkbox:focus-visible,
+    .collapse:focus-visible,
+    */
+    .file-input:focus,
+    .input:focus,
+    .input:focus-within,
+    .input input:focus,
+    .select:focus,
+    .select:focus-within,
+    .select select:focus,
+    .textarea:focus,
+    .textarea:focus-within {
+        @apply border-primary-500 outline-offset-0 outline-primary-500;
+    }
+}

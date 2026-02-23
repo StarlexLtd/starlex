@@ -1,0 +1,69 @@
+@reference "../app.css";
+
+.cyy-floating-filter-container {
+    @apply h-full w-full p-1 font-normal;
+}
+
+.cyy-floating-filter {
+    @apply h-full w-full gap-0 rounded-none p-0 shadow-none;
+}
+
+.cyy-floating-filter-operator {
+    @apply h-full;
+}
+
+.cyy-floating-filter-operator-selected {
+    @apply h-full rounded-none border-0 border-r bg-transparent px-1 shadow-none outline-0;
+}
+
+.cyy-floating-filter-operator-menu {
+    @apply bg-base-100 border-secondary-500 border p-0;
+}
+
+.cyy-floating-filter-operator-item {
+    a {
+        color: var(--ag-data-color);
+        font-weight: normal;
+    }
+
+    a:hover {
+        font-weight: normal;
+        text-decoration: none;
+        text-shadow: none;
+    }
+}
+
+.cyy-floating-filter-select {
+    @apply m-0 h-full w-10 grow rounded-none border-0 px-1 py-0 text-sm font-normal;
+}
+
+.cyy-floating-filter-select.select > option {
+    @apply text-sm;
+}
+
+.cyy-floating-filter-input {
+    @apply m-0 w-10 grow rounded-none border-0 p-1 font-normal;
+}
+
+.cyy-floating-filter-modified {
+    @apply bg-success-300;
+}
+
+/* Overriding */
+.ag-header-row-column-filter {
+    .ag-header-cell::before {
+        background-color: transparent;
+    }
+
+    .input:focus,
+    .input:focus-within,
+    .select:focus,
+    .select:focus-within {
+        outline-width: 0px;
+    }
+}
+
+.ag-floating-filter {
+    border-right: var(--ag-cell-horizontal-border);
+    padding: 0px;
+}
