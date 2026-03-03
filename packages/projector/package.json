@@ -1,5 +1,5 @@
 {
-    "name": "@cyysummer/projector",
+    "name": "@buxton/projector",
     "version": "0.0.13",
     "description": "A powerful state projection library for creating anything.",
     "license": "MIT",
@@ -31,10 +31,10 @@
         "on-change": "catalog:"
     },
     "peerDependencies": {
-        "@cyysummer/core": "workspace:*"
+        "@buxton/core": "workspace:*"
     },
     "devDependencies": {
-        "@cyysummer/core": "workspace:*",
+        "@buxton/core": "workspace:*",
         "@types/lodash-es": "catalog:",
         "tsup": "catalog:",
         "typescript": "catalog:",

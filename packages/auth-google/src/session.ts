@@ -1,7 +1,7 @@
 import type { Cookies, RequestEvent } from "@sveltejs/kit";
 import type { Db } from "mongodb";
 
-import { base64Encode, sha256 } from "@cyysummer/core";
+import { base64Encode, sha256 } from "@buxton/core";
 
 interface ISessionComposableConfig {
     // #region Database config

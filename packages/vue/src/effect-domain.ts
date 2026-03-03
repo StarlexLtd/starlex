@@ -8,7 +8,7 @@ import {
     watchPostEffect as vueWatchPostEffect,
     watchSyncEffect as vueWatchSyncEffect,
 } from "vue";
-import { InteractionController } from "@cyysummer/core";
+import { InteractionController } from "@buxton/core";
 
 type MaybeUndefined<T, I> = I extends true ? T | undefined : T;
 type MapSources<T, Immediate> = {

@@ -1,5 +1,5 @@
 {
-    "name": "@cyysummer/ag-grid",
+    "name": "@buxton/ag-grid",
     "version": "0.0.1",
     "license": "MIT",
     "author": "Chris Liu",
@@ -40,14 +40,14 @@
         "@ag-grid-community/core": "catalog:",
         "@ag-grid-community/locale": "catalog:",
         "@ag-grid-community/styles": "catalog:",
-        "@cyysummer/core": "workspace:*"
+        "@buxton/core": "workspace:*"
     },
     "devDependencies": {
         "@ag-grid-community/client-side-row-model": "catalog:",
         "@ag-grid-community/core": "catalog:",
         "@ag-grid-community/locale": "catalog:",
         "@ag-grid-community/styles": "catalog:",
-        "@cyysummer/core": "workspace:*",
+        "@buxton/core": "workspace:*",
         "@microsoft/api-extractor": "catalog:",
         "@sveltejs/vite-plugin-svelte": "catalog:",
         "@tailwindcss/vite": "catalog:",

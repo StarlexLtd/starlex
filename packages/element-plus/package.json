@@ -1,5 +1,5 @@
 {
-    "name": "@cyysummer/element-plus",
+    "name": "@buxton/element-plus",
     "version": "0.0.5",
     "license": "MIT",
     "type": "module",
@@ -23,12 +23,12 @@
     "dependencies": {
     },
     "peerDependencies": {
-        "@cyysummer/core": "workspace:*",
+        "@buxton/core": "workspace:*",
         "element-plus": ">=2.11.0",
         "vue": ">=3.5.0"
     },
     "devDependencies": {
-        "@cyysummer/core": "workspace:*",
+        "@buxton/core": "workspace:*",
         "less": "catalog:",
         "tsup": "catalog:",
         "typescript": "catalog:",

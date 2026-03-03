@@ -20,7 +20,7 @@ import type { IFloatingFilterParams, ValueFormatterParams } from "@ag-grid-commu
 import type { AgFilterItem, FilterOp, IFilterOpDef, IFloatingFilterExtraParams } from "./types";
 
 import { onMount, onDestroy } from "svelte";
-import { eventMod } from "@cyysummer/core";
+import { eventMod } from "@buxton/core";
 import { getFilterDefine, getFiltersByDataType, filterOpReset, SELECT_ALL_VALUE } from "./utils";
 import "./styles.css";
 

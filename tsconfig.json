@@ -20,7 +20,7 @@
         "jsx": "preserve",
         "lib": ["esnext", "dom", "decorators"],
         "paths": {
-            "@cyysummer/core": ["packages/core/src"]
+            "@buxton/core": ["packages/core/src"]
         },
     },
     "include": [

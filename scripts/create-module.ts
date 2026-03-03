@@ -14,7 +14,7 @@ const _npmignore = `.env
 `;
 
 const package_json = `{
-    "name": "@cyysummer/<%name%>",
+    "name": "@buxton/<%name%>",
     "version": "0.0.1",
     "license": "MIT",
     "type": "module",
@@ -33,11 +33,12 @@ const package_json = `{
         "test": "vitest"
     },
     "dependencies": {
-        "@cyysummer/core": "workspace:^"
     },
     "peerDependencies": {
+        "@buxton/core": "workspace:*"
     },
     "devDependencies": {
+        "@buxton/core": "workspace:*",
         "tsup": "catalog:",
         "typescript": "catalog:",
         "vite": "catalog:",

@@ -20,7 +20,7 @@ TRACE=1
     "compilerOptions": {
         "typeRoots": [
             "node_modules/@types",
-            "@cyysummer/core/types",
+            "@buxton/core/types",
             ...
         ],
     },
@@ -30,13 +30,13 @@ TRACE=1
 在合适的 `index.d.ts` 中加入：
 
 ```
-/// <reference types="@cyysummer/core" />
+/// <reference types="@buxton/core" />
 ```
 
 尽早引用：
 
 ```typescript
-import "@cyysummer/core/global";
+import "@buxton/core/global";
 ```
 
 针对特定框架的调用位置：
@@ -55,7 +55,7 @@ import "@cyysummer/core/global";
 在合适的 `index.d.ts` 中加入：
 
 ```typescript
-import type { GlobalEvents as _Events } from "@cyysummer/core";
+import type { GlobalEvents as _Events } from "@buxton/core";
 
 declare global {
     type GlobalEvents = _Events & {

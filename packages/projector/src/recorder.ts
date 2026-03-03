@@ -1,7 +1,7 @@
 import type { IProjector, IRecorder, Patch, RecorderEvents } from "../types";
 
 import { cloneDeep, debounce, set } from "lodash-es";
-import { withEvents } from "@cyysummer/core";
+import { withEvents } from "@buxton/core";
 
 /**
  * Record changes to an object.

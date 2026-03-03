@@ -1,5 +1,5 @@
 {
-    "name": "@cyysummer/vue",
+    "name": "@buxton/vue",
     "version": "0.0.6",
     "description": "Utilities for Vue 3.",
     "license": "MIT",
@@ -30,11 +30,11 @@
     "dependencies": {
     },
     "peerDependencies": {
-        "@cyysummer/core": "workspace:*",
+        "@buxton/core": "workspace:*",
         "vue": ">=3.5.0"
     },
     "devDependencies": {
-        "@cyysummer/core": "workspace:*",
+        "@buxton/core": "workspace:*",
         "@vitejs/plugin-vue": "catalog:",
         "@vitejs/plugin-vue-jsx": "catalog:",
         "@vue/reactivity": "catalog:",

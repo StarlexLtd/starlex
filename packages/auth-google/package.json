@@ -1,5 +1,5 @@
 {
-    "name": "@cyysummer/auth-google",
+    "name": "@buxton/auth-google",
     "version": "0.0.1",
     "license": "MIT",
     "type": "module",
@@ -20,13 +20,13 @@
     "dependencies": {
     },
     "peerDependencies": {
-        "@cyysummer/core": "workspace:*",
+        "@buxton/core": "workspace:*",
         "arctic": "catalog:",
         "mitt": "catalog:",
         "mongodb": "catalog:"
     },
     "devDependencies": {
-        "@cyysummer/core": "workspace:*",
+        "@buxton/core": "workspace:*",
         "@sveltejs/kit": "catalog:",
         "mongodb": "catalog:"
     },
