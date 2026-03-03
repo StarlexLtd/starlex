@@ -1,9 +1,9 @@
-// export type Capability<TInstance, TBase extends Constructor> = new (...args: ConstructorParameters<TBase>) => InstanceType<TBase> & TInstance;
+// export type Capability<TInstance, TBase extends Constructor> = TBase & Constructor<InstanceType<TBase> & TInstance>;
 
-export type Capability<TExtended, TBase extends Constructor> =
+export type Capability<TExtension, TBase extends Constructor> =
     & TBase
+    & Constructor<InstanceType<TBase> & TExtension>
     & {
-        new(...args: any[]): InstanceType<TBase> & TExtended;
         // readonly [CAPABILITY]: TTag;
     };
 

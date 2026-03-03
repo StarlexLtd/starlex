@@ -17,8 +17,8 @@ export type EventCapability<TEvents extends Record<EventType, unknown>, TBase ex
  */
 export function withEvents<
     TEvents extends Record<EventType, unknown>,
-    TBase extends Constructor = Constructor
->(Base: TBase = Object as unknown as TBase): EventCapability<TEvents, TBase> {
+    TBase extends Constructor = Constructor<object>
+>(Base: TBase = class {} as unknown as TBase): EventCapability<TEvents, TBase> {
     return class EventEnhanced extends Base implements IEventful<TEvents> {
         readonly #emitter = mitt<TEvents>();
 
