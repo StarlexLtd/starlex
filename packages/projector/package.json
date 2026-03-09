@@ -1,6 +1,6 @@
 {
     "name": "@buxton/projector",
-    "version": "0.0.13",
+    "version": "0.2.0",
     "description": "A powerful state projection library for creating anything.",
     "license": "MIT",
     "author": "Chris Liu",

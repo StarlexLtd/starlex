@@ -1,6 +1,6 @@
 {
     "name": "@buxton/vue",
-    "version": "0.0.6",
+    "version": "0.2.0",
     "description": "Utilities for Vue 3.",
     "license": "MIT",
     "author": "Chris Liu",
