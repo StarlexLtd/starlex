@@ -1,2 +1,2 @@
-export * from "./action";
+export * from "./composables";
 export * from "./effect-domain";
